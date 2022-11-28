@@ -1,0 +1,27 @@
+{
+  "name": "restbasic",
+  "version": "1.0.0",
+  "description": "Rest basics project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iPaoloTM/EasyTrip.git"
+  },
+  "author": "Group EasyTrip",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iPaoloTM/EasyTrip/issues"
+  },
+  "homepage": "https://github.com/iPaoloTM/EasyTrip#readme",
+  "dependencies": {
+    "convert-json-schema-to-mongoose": "^0.3.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.6.7"
+  }
+}
