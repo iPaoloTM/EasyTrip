@@ -3,13 +3,10 @@
 var mongoose = require('mongoose');
 const dotenv = require("dotenv").config();
 
-const DB_NAME = "events_db";
-const DB_CONNECTION_STRING = `mongodb://${process.env.MONGO_HOST || "localhost:27017"}/${DB_NAME}`;
-//const DB_USER = process.env.MONGO_ROOT_USER;
-//const DB_PASS = process.env.MONGO_ROOT_PWD;
+const DB_CONNECTION_STRING = process.env.DB_URL;
 
 
-module.exports.initDB = (dbname=DB_NAME) => {
+module.exports.initDB = () => {
 
     return new Promise((resolve, reject) => {
         mongoose.connect(DB_CONNECTION_STRING, /*{
