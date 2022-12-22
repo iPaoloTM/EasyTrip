@@ -1,17 +1,29 @@
 'use strict';
 
 const config = require('./config');
-const app = require('./app/app');
+const auth = require('./processes/auth/service');
+const pointSearch = require('./processes/pointSearch/service');
+const pathSearch = require('./processes/pathSearch/service');
 
 //Check Env
-const PORT = process.env.PORT || 8080;
+const AUTH_PORT = process.env.AUTH_PORT || 12345;
+const POINT_PORT = process.env.POINT_PORT || 12346;
+const PATH_PORT = process.env.PATH_PORT || 12347;
 
 config.initDB()
     .then(msg => {
         console.log(msg);
 
-        const server = app.listen(PORT, () => {
-            console.log("Server started. Port: ", PORT);
+        const pA = auth.listen(AUTH_PORT, () => {
+            console.log("Authentication process started. Port: ", AUTH_PORT);
+        });
+        
+        const pPoint = pointSearch.listen(POINT_PORT, () => {
+            console.log("Point Search process started. Port: ", POINT_PORT);
+        });
+
+        const pPath = pathSearch.listen(PATH_PORT, () => {
+            console.log("Path Search process started. Port: ", PATH_PORT);
         });
     })
     .catch(err => {
