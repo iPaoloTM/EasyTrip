@@ -9,6 +9,7 @@ const tokenGenerator = require('../utils/tokenGenerator');
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
     serverError: "Server error", //Errorr code: 500
+	errorGoogle: "Impossibile accedere con Google"
 }
 
 module.exports.login_users = async (req, res) => {
@@ -95,3 +96,48 @@ module.exports.signup_users = async (req, res) => {
 	});
 
 };
+
+module.exports.googleFailed = (req, res) => {
+    res.status(400)
+    .json({
+        error: MSG.errorGoogle
+    });
+}
+
+module.exports.google = (req, res) => {
+    let userGoogle = req.user._json;
+    req.logout(); // logout from google
+    let filterEmail = {
+        email: userGoogle.email
+    };
+	console.log(userGoogle.email);
+	
+    User.findOne(
+        filterEmail,
+        function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                userGoogle.googleaccount = true;
+                var newUserGoogle = new User(userGoogle);
+                newUserGoogle.save(function(err, user) {
+                    if (err) {
+                        return res.status(400).send({
+                            error: MSG.errorDuplicateEmail
+                        });
+                    } else {
+                        return res.status(200).json({
+                            token: tokenGenerator(user)
+                        });
+                    }
+                });
+            }
+            else {
+                const update = { googleaccount: true };
+                let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
+                    let token = tokenGenerator(user);
+                    return res.redirect("https://www.noteapp-is2.tk/google-redirect?token=" + token);
+                });
+            }
+        }
+    );
+}
