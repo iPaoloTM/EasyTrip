@@ -3,10 +3,13 @@
 const express = require('express');
 const router = express.Router();
 
-const eventHandler = require('../../controllers/userController');
+const userHandler = require('../../controllers/userController');
+const googleHandler = require('../../middleware/googleauth')
 
-router.post('/login', eventHandler.login_users);
+router.post('/login', userHandler.login_users);
 
-router.post('/signup', eventHandler.signup_users);
+router.post('/signup', userHandler.signup_users);
+
+router.use('/google', googleHandler)
 
 module.exports = router;

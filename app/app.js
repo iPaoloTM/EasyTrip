@@ -8,6 +8,7 @@ const apiV1 = require('./routes/api.v1');
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/v1', apiV1);

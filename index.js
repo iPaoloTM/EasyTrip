@@ -4,7 +4,7 @@ const config = require('./config');
 const app = require('./app/app');
 
 //Check Env
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 8080;
 
 config.initDB()
     .then(msg => {
