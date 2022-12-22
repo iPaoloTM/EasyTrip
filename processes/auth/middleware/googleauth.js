@@ -10,10 +10,11 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 var passport = require('passport');
-var userProfile;
- 
+const app = require('../service');
+var userProfile; 
 
 router.use(passport.initialize());
+router.use(passport.session());
 
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,

@@ -81,7 +81,7 @@ module.exports.signup_users = async (req, res) => {
     const newUser = await User.create({
 		username: req.body.username, 
 		email: req.body.email, 
-		psw: pswHash,
+		psw: pswHash
 	});
 	
 	let token = tokenGenerator(newUser);
@@ -106,38 +106,43 @@ module.exports.googleFailed = (req, res) => {
 
 module.exports.google = (req, res) => {
     let userGoogle = req.user._json;
-    req.logout(); // logout from google
-    let filterEmail = {
-        email: userGoogle.email
-    };
-	console.log(userGoogle.email);
+    //req.logout(); // logout from google
+    
+	req.logout(req.user, err => {
+		if(err) return next(err);
+		let filterEmail = {
+			email: userGoogle.email
+		};
+		
+		User.findOne(
+			filterEmail,
+			function(err, user) {
+				if (err) throw err;
+				if (!user) {
+					userGoogle.googleaccount = true;
+					var newUserGoogle = new User(userGoogle);
+					newUserGoogle.save(function(err, user) {
+						if (err) {
+							return res.status(400).send({
+								error: MSG.errorDuplicateEmail
+							});
+						} else {
+							return res.status(200).json({
+								token: tokenGenerator(user)
+							});
+						}
+					});
+				}
+				else {
+					const update = { googleaccount: true };
+					let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
+						return res.status(200).json({
+							token: tokenGenerator(user)
+						});
+					});
+				}
+			}
+		);
+	});
 	
-    User.findOne(
-        filterEmail,
-        function(err, user) {
-            if (err) throw err;
-            if (!user) {
-                userGoogle.googleaccount = true;
-                var newUserGoogle = new User(userGoogle);
-                newUserGoogle.save(function(err, user) {
-                    if (err) {
-                        return res.status(400).send({
-                            error: MSG.errorDuplicateEmail
-                        });
-                    } else {
-                        return res.status(200).json({
-                            token: tokenGenerator(user)
-                        });
-                    }
-                });
-            }
-            else {
-                const update = { googleaccount: true };
-                let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
-                    let token = tokenGenerator(user);
-                    return res.redirect("https://www.noteapp-is2.tk/google-redirect?token=" + token);
-                });
-            }
-        }
-    );
 }

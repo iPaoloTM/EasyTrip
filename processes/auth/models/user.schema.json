@@ -3,7 +3,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "description": "Base structure of a user",
     "type": "object",
-    "required": ["username","psw"],
+    "required": ["googleAccount", "email"],
     "properties": {
         "username": {
             "type": "string",
