@@ -3,7 +3,8 @@
 const express = require('express');
 const apiV1 = express.Router();
 
-const eventsRouter = require('./apiV1/events');
+const usersRouter = require('./apiV1/users');
+const esempiRouter = require('./apiV1/esempi');
 
 // middleware that tracks request
 apiV1.use(function timeLog(req, res, next) {
@@ -11,6 +12,7 @@ apiV1.use(function timeLog(req, res, next) {
 	next();
 });
 
-apiV1.use('/events', eventsRouter);
+apiV1.use('/users', usersRouter);
+apiV1.use('/esempi', esempiRouter);
 
 module.exports = apiV1;
