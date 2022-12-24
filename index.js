@@ -6,7 +6,7 @@ const pointSearch = require('./processes/pointSearch/service');
 const pathSearch = require('./processes/pathSearch/service');
 
 //Check Env
-const AUTH_PORT = process.env.AUTH_PORT || 8080;  //12345
+const AUTH_PORT = process.env.AUTH_PORT || 12345;
 const POINT_PORT = process.env.POINT_PORT || 12346;
 const PATH_PORT = process.env.PATH_PORT || 12347;
 

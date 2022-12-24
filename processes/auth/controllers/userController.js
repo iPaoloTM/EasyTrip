@@ -60,7 +60,7 @@ module.exports.signup_users = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-	if(!req.body.username || !req.body.password || !req.body.email){
+	if(!req.body.username || !req.body.password || !req.body.email || !req.body.password2 || req.body.password != req.body.password2){
 		res.status(400).json({ success: false, message: 'Bad Request. Check docs for required parameters. /api/api-docs' });	
 		return;
 	}
@@ -106,39 +106,40 @@ module.exports.googleFailed = (req, res) => {
 
 module.exports.google = (req, res) => {
     let userGoogle = req.user._json;
-    //req.logout(); // logout from google
     
 	req.logout(req.user, err => {
 		if(err) return next(err);
 		let filterEmail = {
 			email: userGoogle.email
 		};
-		
 		User.findOne(
 			filterEmail,
-			function(err, user) {
+			async function(err, user) {
 				if (err) throw err;
 				if (!user) {
 					userGoogle.googleaccount = true;
-					var newUserGoogle = new User(userGoogle);
+					const newUserGoogle = await User.create({
+						username: userGoogle.name, 
+						email: userGoogle.email, 
+						googleaccount: true
+					});
 					newUserGoogle.save(function(err, user) {
 						if (err) {
 							return res.status(400).send({
 								error: MSG.errorDuplicateEmail
 							});
 						} else {
-							return res.status(200).json({
-								token: tokenGenerator(user)
-							});
+							let token= tokenGenerator(user)
+							res.set({ tok: token })
+							return res.redirect("http://localhost:4200/login?username=" + user.username +"&token=" + token);
 						}
 					});
 				}
 				else {
 					const update = { googleaccount: true };
 					let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
-						return res.status(200).json({
-							token: tokenGenerator(user)
-						});
+						let token= tokenGenerator(user)
+						return res.redirect("http://localhost:4200/login?username=" + user.username +"&token=" + token);
 					});
 				}
 			}
