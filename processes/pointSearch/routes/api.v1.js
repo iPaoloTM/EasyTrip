@@ -4,6 +4,7 @@ const express = require('express');
 const apiV1 = express.Router();
 
 const esempiRouter = require('./apiV1/esempi');
+const provaWeather = require('./apiV1/weather');
 
 // middleware that tracks request
 apiV1.use(function timeLog(req, res, next) {
@@ -12,5 +13,6 @@ apiV1.use(function timeLog(req, res, next) {
 });
 
 apiV1.use('/esempi', esempiRouter);
+apiV1.use('/weather', provaWeather);
 
 module.exports = apiV1;
