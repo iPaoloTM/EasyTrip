@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/iPaoloTM/EasyTrip#readme",
   "dependencies": {
+    "amadeus": "^7.1.0",
     "bcrypt": "^5.1.0",
     "convert-json-schema-to-mongoose": "^0.3.2",
     "cors": "^2.8.5",

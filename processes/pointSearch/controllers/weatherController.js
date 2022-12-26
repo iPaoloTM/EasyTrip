@@ -22,7 +22,6 @@ module.exports.current = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        user: req.loggedUser,
         message: 'current weather in '+req.query.city+' is '+desc
     });
 };
@@ -46,7 +45,6 @@ module.exports.forecast = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        user: req.loggedUser,
         message: forecasts,
         array: array
     });
