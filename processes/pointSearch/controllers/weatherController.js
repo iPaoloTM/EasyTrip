@@ -22,6 +22,7 @@ module.exports.current = async (req, res) => {
 
     res.status(200).json({
         success: true,
+        user: req.loggedUser,
         message: 'current weather in '+req.query.city+' is '+desc
     });
 };

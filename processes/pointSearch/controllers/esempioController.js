@@ -5,6 +5,9 @@ let MSG = {
     serverError: "Server error", //Errorr code: 500
 }
 
+const weather = require('./weatherController');
+const poi = require('./poiController');
+
 module.exports.es1 = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -28,4 +31,17 @@ module.exports.es2 = async (req, res) => {
         success: true,
         message: 'ES2 senza token'
     });
+};
+
+module.exports.about = async (req, res) => {
+
+    const weather_info = weather.f(req, res);
+    console.log(weather_info);
+    const array = poi.g(req, res);
+    console.log(array);
+
+    res.status(200).json({
+          success: true,
+          message: weather_info
+      });
 };
