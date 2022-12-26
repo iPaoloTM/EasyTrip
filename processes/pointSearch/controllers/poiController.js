@@ -20,17 +20,47 @@ module.exports.getPOI = async (req, res) => {
     clientSecret: process.env.API_SECRET
     });
 
-    amadeus.referenceData.locations.pointsOfInterest.get({
-      latitude : 52.531677,
-      longitude : 13.381777
+    var lat=0, long=0;
+    const city=req.query.city;
+    const array = [];
+
+    amadeus.referenceData.locations.cities.get({
+        keyword: city
     }).then(function (response) {
-        console.log(response);
+        console.log(response.data[0]);
+        lat = response.data[0].geoCode["latitude"];
+        long = response.data[0].geoCode["longitude"];
+
+        amadeus.referenceData.locations.pointsOfInterest.get({
+          latitude : lat,
+          longitude : long
+        }).then(function (response) {
+
+          response.result.data.forEach((item, i) => {
+            array[i]=item.name;
+          });
+
+          res.status(200).json({
+              success: true,
+              message: array
+
+          });
+        }).catch(function (response) {
+
+          res.status(400).json({
+              success: false,
+              message: response
+
+        });
+      });
     }).catch(function (response) {
-        console.error(response);
+
+      res.status(400).json({
+          success: false,
+          message: response
+      });
+
     });
 
-    res.status(200).json({
-        success: true,
-        message: "b"
-    });
+
 };
