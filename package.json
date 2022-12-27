@@ -28,6 +28,8 @@
     "mongoose": "^6.6.7",
     "node-fetch": "^3.3.0",
     "passport": "^0.6.0",
-    "passport-google-oauth": "^2.0.0"
+    "passport-google-oauth": "^2.0.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   }
 }
