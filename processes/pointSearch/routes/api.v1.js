@@ -3,7 +3,7 @@
 const express = require('express');
 const apiV1 = express.Router();
 
-const esempiRouter = require('./apiV1/esempi');
+const combinedRouter = require('./apiV1/combined');
 const provaWeather = require('./apiV1/weather');
 const poi = require('./apiV1/poi');
 
@@ -13,7 +13,7 @@ apiV1.use(function timeLog(req, res, next) {
 	next();
 });
 
-apiV1.use('/esempi', esempiRouter);
+apiV1.use('/combined', combinedRouter);
 apiV1.use('/weather', provaWeather);
 apiV1.use('/poi', poi);
 

@@ -2,16 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../../middleware/auth');
 const request = require('request-promise');
 
 const eventHandler = require('../../controllers/esempioController');
 const weatherHandler = require('../../controllers/weatherController');
 const poiHandler = require('../../controllers/poiController');
-
-router.post('/es1', verifyToken, eventHandler.es1);
-
-router.post('/es2', eventHandler.es2);
 
 router.get('/about', async (req, res) => {
 
