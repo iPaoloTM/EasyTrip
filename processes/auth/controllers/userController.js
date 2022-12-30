@@ -32,7 +32,7 @@ module.exports.login_users = async (req, res) => {
 	
 	// user not found
 	if (!user) {
-		res.status(400).json({ success: false, message: 'Authentication failed. Wrong username or password.' });	
+		res.status(400).json({ success: false, message: 'Wrong username or password.' });	
 		return;
 	}
 	
@@ -131,7 +131,7 @@ module.exports.google = (req, res) => {
 						} else {
 							let token= tokenGenerator(user)
 							res.set({ tok: token })
-							return res.redirect("http://localhost:4200/login?username=" + user.username +"&token=" + token);
+							return res.redirect("http://localhost:4200?username=" + user.username +"&token=" + token);
 						}
 					});
 				}
@@ -139,7 +139,7 @@ module.exports.google = (req, res) => {
 					const update = { googleaccount: true };
 					let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
 						let token= tokenGenerator(user)
-						return res.redirect("http://localhost:4200/login?username=" + user.username +"&token=" + token);
+						return res.redirect("http://localhost:4200?username=" + user.username +"&token=" + token);
 					});
 				}
 			}
