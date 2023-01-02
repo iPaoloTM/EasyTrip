@@ -2,7 +2,7 @@
 
 const config = require('./config');
 const auth = require('./processes/auth/service');
-const OSMDataRetirever = require('./processes/OSMDataRetriever/service');
+const OSMTools = require('./processes/OSMTools/service');
 const pointSearch = require('./processes/pointSearch/service');
 const pathSearch = require('./processes/pathSearch/service');
 
@@ -20,8 +20,8 @@ config.initDB()
             console.log("Authentication process started. Port: ", AUTH_PORT);
         });
 
-        const pOSM = OSMDataRetirever.listen(OSM_PORT, () => {
-            console.log("OSM Data Retriever process started. Port: ", OSM_PORT);
+        const pOSM = OSMTools.listen(OSM_PORT, () => {
+            console.log("OSM Tools process started. Port: ", OSM_PORT);
         });
         
         const pPoint = pointSearch.listen(POINT_PORT, () => {
