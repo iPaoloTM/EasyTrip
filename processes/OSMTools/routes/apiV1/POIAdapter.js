@@ -8,4 +8,6 @@ const POIAdapter = require('../../controllers/POIAdapter');
 
 router.get('/poi',/* verifyToken,*/ POIAdapter.poi);
 
+router.get('/nearbyCities',/* verifyToken,*/ POIAdapter.nearbyCities);
+
 module.exports = router;
