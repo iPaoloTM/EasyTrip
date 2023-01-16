@@ -16,23 +16,30 @@ function cleanWrtStruct(toClean,referringStruct) {
     return toClean;
 }
 
-function strToPoint(strPoint,reverse = false) {
-    
-    let point;
-    let right = strPoint != undefined;
+function checkStrFloatArray(strArray,sep = ",") {
+
+    let array;
+    let right = strArray != undefined;
     let i = 0;
 
     if (right) {
-        point = strPoint.split(",");
-        while (right && i < point.length) {
-            if (isNaN(point[i] = parseFloat(point[i]))) {
+        array = strArray.split(sep);
+        while (right && i < array.length) {
+            if (isNaN(array[i] = parseFloat(array[i]))) {
                 right = false;
             }
             i++;
         }
     }
 
-    return right ? (reverse ? reversePointArray(point) : point) : null;
+    return right ? array : null;
+}
+
+function strToPoint(strPoint,reverse = false) {
+    
+    let point = checkStrFloatArray(strPoint);
+
+    return point != null ? (reverse ? reversePointArray(point) : point) : null;
 }
 
 function pointToStr(point) {
@@ -75,4 +82,4 @@ function reversePointArray(point) {
     return point.reverse();
 }
 
-module.exports = { fetch,cleanWrtStruct,strToPoint,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray }
+module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray }

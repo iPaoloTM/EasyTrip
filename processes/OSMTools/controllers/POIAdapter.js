@@ -1,6 +1,6 @@
 'use strict';
 
-const { fetch,cleanWrtStruct,strToPoint,pointToStr,arrayToStr,pointArrayToObj } = require("../../../common/functions");
+const { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,pointToStr,arrayToStr,pointArrayToObj } = require("../../../common/functions");
 const { AMENITIES,TOURISM,PLACES,INTERESTS } = require('../../../common/dataStructures');
 
 const geolib = require('geolib');
@@ -20,27 +20,32 @@ module.exports.poi = async (req, res) => {
     let interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];  //topic of search (possible values: amenities or tourism keys)
     let strPoint = req.query.point; //referring point for the search
     let squareSideStr = req.query.squareSide;   //side of square area of search
+    let bboxStr = req.query.bbox; //Bounding box of search (alternative of point-squareSide)
     
     let right = true;
-    let point,squareSide,boundingBoxStr,amenitiesStr,tourismStr;
+    let point,squareSide,amenitiesStr,tourismStr,bbox;
 
     if ((interests = cleanWrtStruct(interests,INTERESTS)).length
-     && (point = strToPoint(strPoint)) != null) {
-        if (squareSideStr == undefined) {
-            squareSide = 50000;
-        } else {
-            right = !isNaN(squareSide = parseFloat(squareSideStr));
+     && ((bbox = checkStrFloatArray(bboxStr)) != null || (point = strToPoint(strPoint)) != null)) {
+        if (bbox == null) {
+            if (squareSideStr == undefined) {
+                squareSide = 50000;
+            } else {
+                right = !isNaN(squareSide = parseFloat(squareSideStr));
+            }
         }
     } else {
         right = false;
     }
     if (right) {
-        boundingBoxStr = boundingBoxtoStr(point,squareSide);
+        if (bbox == null) {
+            bboxStr = buildBboxStr(point,squareSide);
+        }
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
         tourismStr = dictFieldsToStr(interests,TOURISM);
         queryOverpass("[out:json];("
-                        + (amenitiesStr != "" ? "nwr(" + boundingBoxStr + ")[\"addr:city\"][amenity~'^(" + amenitiesStr + ")$'];" : "")
-                        + (tourismStr != "" ? "nwr(" + boundingBoxStr + ")[\"addr:city\"][tourism~'^(" + tourismStr + ")$'];" : "")
+                        + (amenitiesStr != "" ? "nwr(" + bboxStr + ")[\"addr:city\"][amenity~'^(" + amenitiesStr + ")$'];" : "")
+                        + (tourismStr != "" ? "nwr(" + bboxStr + ")[\"addr:city\"][tourism~'^(" + tourismStr + ")$'];" : "")
                         + ");out;")
             .then(response => {
                 try {
@@ -83,7 +88,7 @@ module.exports.nearbyCities = async (req, res) => {
     }
 }
 
-function boundingBoxtoStr(point,squareSide) {
+function buildBboxStr(point,squareSide) {
     return geolib.computeDestinationPoint(pointArrayToObj(point),squareSide/2,180).latitude + ","
             + geolib.computeDestinationPoint(pointArrayToObj(point),squareSide/2,-90).longitude + ","
             + geolib.computeDestinationPoint(pointArrayToObj(point),squareSide/2,0).latitude + ","
