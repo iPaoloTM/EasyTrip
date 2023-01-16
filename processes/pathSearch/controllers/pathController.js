@@ -61,8 +61,13 @@ module.exports.route = async (req, res) => {
 
 async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "20000",maxDetourStr = "10000",profile = "car", poisDescriptions = true) {
 
+    let stops = {
+        start: {},
+        end: {},
+        intermediates: []
+    };
     let poiDirections = [0,-1,1];
-    let stops, i, j, limit, minDistance, maxDetour, startPoint, endPoint, right, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
+    let i, j, limit, minDistance, maxDetour, right, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
     //Request check
     if (start != undefined
             && end != undefined
@@ -73,11 +78,11 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
             && PROFILES[profile] != undefined) {
         //Retrieve start and end coordinates and informations
         try {
-            startPoint = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + start)
+            stops.start = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + start)
                             .then(response => JSON.parse(response))).hits[0];
-            endPoint = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + end)
+            stops.end = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + end)
                         .then(response => JSON.parse(response))).hits[0];
-            /*startPoint = {
+            /*stops.start = {
                 point: { lat: 45.4384958, lng: 10.9924122 },
                 extent: [ 10.8768512, 45.3494402, 11.1239, 45.5418375 ],
                 name: 'Verona',
@@ -89,7 +94,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                 osm_key: 'place',
                 osm_value: 'city'
             };
-            endPoint = {
+            stops.end = {
                 "point": {
                     "lat": 41.8933203,
                     "lng": 12.4829321
@@ -109,7 +114,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                 "osm_key": "place",
                 "osm_value": "city"
             };*/
-            right = startPoint != undefined && endPoint != undefined ? true : false;
+            right = stops.start != undefined && stops.end != undefined ? true : false;
         } catch (error) {
             console.error(error);
             right = false;
@@ -122,7 +127,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
     if (right) {
         try {
             //Retrieve route between start and end
-            path = (await request(OSM_TOOLS_URL + "/v1/routing/route?point=" + pointToStr(startPoint) + "&point=" + pointToStr(endPoint) + "&profile=" + profile)
+            path = (await request(OSM_TOOLS_URL + "/v1/routing/route?point=" + pointToStr(stops.start) + "&point=" + pointToStr(stops.end) + "&profile=" + profile)
                             .then(response => JSON.parse(response))).paths[0];
             /*fs.readFile('./processes/pathSearch/controllers/tmp.json', 'utf8', async (err, data) => {
                 if (err) {
@@ -136,12 +141,11 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
             //Find at most limit intermediary points at least minDistance apart
             right = false;
             while (limit > 0 && !right) {
-                stops = [];
                 subPathLen = Math.round(path.points.coordinates.length/(limit+1));
                 for (i = subPathLen; i < subPathLen*(limit+1); i += subPathLen) {
-                    stops.push(path.points.coordinates[i]);
+                    stops.intermediates.push(path.points.coordinates[i]);
                 }
-                if (geolib.getDistance(pointArrayToObj(stops[0]),pointArrayToObj(stops[1])) < minDistance) {
+                if (geolib.getDistance(pointArrayToObj(stops.intermediates[0]),pointArrayToObj(stops.intermediates[1])) < minDistance) {
                     limit--;
                 } else {
                     right = true;
@@ -151,13 +155,13 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
             //For every point, search pois related with user interests and find the city with most of them
             interestsStr = arrayToStr(interests,"&interest=",true);
             poiTollerance = Math.round(subPathLen*0.2);
-            for (i = 0; i < stops.length; i++) {
+            for (i = 0; i < stops.intermediates.length; i++) {
                 //Find pois
                 j = 0;
                 do {
-                    stops[i] = reversePointArray(!poiDirections[j] ? stops[i] : path.points.coordinates[subPathLen*(i+1)+poiDirections[j]*poiTollerance]);
+                    stops.intermediates[i] = reversePointArray(!poiDirections[j] ? stops.intermediates[i] : path.points.coordinates[subPathLen*(i+1)+poiDirections[j]*poiTollerance]);
                     try {
-                        pois = (await request(OSM_TOOLS_URL + "/v1/locations/poi?point=" + pointToStr(stops[i]) + interestsStr + "&squareSide=" + maxDetour)
+                        pois = (await request(OSM_TOOLS_URL + "/v1/locations/poi?point=" + pointToStr(stops.intermediates[i]) + interestsStr + "&squareSide=" + maxDetour)
                             .then(response => JSON.parse(response))
                             .catch(error => new Promise(resolve => resolve({elements: []})))
                             ).elements;
@@ -174,21 +178,21 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                         return a < b ? -1 : (a > b ? 1 : 0);
                     });
                     maxMiddlePoint = poisDescriptions ? {
-                        middlePoint: "",
+                        details: "",
                         pois: []
                     } : {
-                        middlePoint: "",
+                        details: "",
                         nPois: 0
                     }
                     currentMiddlePoint = poisDescriptions ? {
-                        middlePoint: pois[0].tags["addr:city"],
+                        details: pois[0].tags["addr:city"],
                         pois: []
                     } : {
-                        middlePoint: pois[0].tags["addr:city"],
+                        details: pois[0].tags["addr:city"],
                         nPois: 0
                     }
                     for (const poi of pois) {
-                        if (poi.tags["addr:city"] == currentMiddlePoint.middlePoint) {
+                        if (poi.tags["addr:city"] == currentMiddlePoint.details) {
                             if (poisDescriptions) {
                                 currentMiddlePoint.pois.push(poi);
                             } else {
@@ -197,32 +201,32 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                         } else {
                             if ((poisDescriptions && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length)
                                     || (!poisDescriptions && currentMiddlePoint.nPois > maxMiddlePoint.nPois)) {
-                                maxMiddlePoint.middlePoint = currentMiddlePoint.middlePoint;
+                                maxMiddlePoint.details = currentMiddlePoint.details;
                                 maxMiddlePoint.pois = currentMiddlePoint.pois;
                             }
-                            currentMiddlePoint.middlePoint = poi.tags["addr:city"];
+                            currentMiddlePoint.details = poi.tags["addr:city"];
                             currentMiddlePoint.pois = [poi];
                         }
                     }
-                    if (currentMiddlePoint.middlePoint != maxMiddlePoint.middlePoint && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length) {
-                        maxMiddlePoint.middlePoint = currentMiddlePoint.middlePoint;
+                    if (currentMiddlePoint.details != maxMiddlePoint.details && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length) {
+                        maxMiddlePoint.details = currentMiddlePoint.details;
                         maxMiddlePoint.pois = currentMiddlePoint.pois;
                     }
-                    stops[i] = maxMiddlePoint;
+                    stops.intermediates[i] = maxMiddlePoint;
                 } else {
-                    stops.splice(i--,1);
+                    stops.intermediates.splice(i--,1);
                 }
             }
             //Convert city name to a point
-            for (i = 0; i < stops.length; i++) {
-                stops[i].middlePoint = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + stops[i].middlePoint)
+            for (i = 0; i < stops.intermediates.length; i++) {
+                stops.intermediates[i].details = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + stops.intermediates[i].details)
                 .then(response => JSON.parse(response))).hits[0];
             }
         } catch (error) {
-            stops = null;
+            stops.intermediates = null;
         }
     } else {
-        stops = null;
+        stops.intermediates = null;
     }
 
     return stops;
