@@ -3,7 +3,7 @@
 const express = require('express');
 const apiV1 = express.Router();
 
-const esempiRouter = require('./apiV1/esempi');
+const pathRouter = require('./apiV1/path');
 
 // middleware that tracks request
 apiV1.use(function timeLog(req, res, next) {
@@ -11,6 +11,6 @@ apiV1.use(function timeLog(req, res, next) {
 	next();
 });
 
-apiV1.use('/esempi', esempiRouter);
+apiV1.use('/path', pathRouter);
 
 module.exports = apiV1;

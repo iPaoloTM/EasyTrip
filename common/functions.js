@@ -1,3 +1,5 @@
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 function cleanWrtStruct(toClean,referringStruct) {
     
     let i = toClean.length;
@@ -14,7 +16,7 @@ function cleanWrtStruct(toClean,referringStruct) {
     return toClean;
 }
 
-function strToPoint(strPoint) {
+function strToPoint(strPoint,reverse = false) {
     
     let point;
     let right = strPoint != undefined;
@@ -30,25 +32,26 @@ function strToPoint(strPoint) {
         }
     }
 
-    return right ? point : null;
+    return right ? (reverse ? reversePointArray(point) : point) : null;
 }
 
-function pointToString(point) {
+function pointToStr(point) {
     
     let res = "";
 
     if (Array.isArray(point)) {
-        res = point[0] + "," + point[1];
+        res = arrayToStr(point,",");
     } else {
-        res = point.latitude + "," + point.longitude;
+        res = (point.latitude != undefined ? point.latitude : point.point.lat) + ","
+                + (point.longitude != undefined ? point.longitude : point.point.lng);
     }
 
     return res;
 }
 
-function arrayToStr(array,sep = "|") {
+function arrayToStr(array,sep = "|",firstSep = false) {
     
-    let res = array[0] != undefined ? array[0] : "";
+    let res = array[0] != undefined ? (firstSep ? sep : "") + array[0] : "";
     
     for (let i = 1; i < array.length; i++) {
         res += sep + array[i];
@@ -57,15 +60,19 @@ function arrayToStr(array,sep = "|") {
     return res;
 }
 
-function pointArrayToObj(point) {
+function pointArrayToObj(point,reverse = false) {
     return {
-        latitude: point[0],
-        longitude: point[1]
+        latitude: point[reverse ? 1 : 0],
+        longitude: point[reverse ? 0 : 1]
     }
 }
 
-function pointObjToArray(point) {
-    return [point.latitude,point.longitude];
+function pointObjToArray(point,reverse = false) {
+    return [reverse ? point.longitude : point.latitude,reverse ? point.latitude : point.longitude];
 }
 
-module.exports = { cleanWrtStruct,strToPoint,pointToString,arrayToStr,pointArrayToObj,pointObjToArray }
+function reversePointArray(point) {
+    return point.reverse();
+}
+
+module.exports = { fetch,cleanWrtStruct,strToPoint,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray }

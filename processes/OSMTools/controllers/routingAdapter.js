@@ -1,13 +1,12 @@
 'use strict';
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const { fetch } = require("../../../common/functions");
+const { PROFILES } = require("../../../common/dataStructures");
 
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
     serverError: "Server error", //Errorr code: 500
 }
-
-const profiles = new Set(["car","car_avoid_motorway","car_avoid_toll","small_truck","scooter","foot","hike","bike","mtb","racingbike"])
 
 module.exports.geocode = async (req, res) => {
 
@@ -57,7 +56,7 @@ module.exports.route = async (req, res) => {
     let points;
     let i = 0, j;
     if (strPoints != undefined && Array.isArray(strPoints) && strPoints.length >= 2
-     && (profile == undefined || profiles.has(profile))
+     && (profile == undefined || PROFILES[profile] != undefined)
      && (shortAnswer == undefined || shortAnswer === 'true' || shortAnswer === 'false')) {
         points = Array(strPoints.length);
         while (right && i < strPoints.length && typeof strPoints[i] == "string") {

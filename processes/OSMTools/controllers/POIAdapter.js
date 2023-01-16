@@ -1,10 +1,9 @@
 'use strict';
 
-const geolib = require('geolib');
-const { AMENITIES,TOURISM,PLACES, INTERESTS } = require('../../../common/dataStructures');
-const { cleanWrtStruct,strToPoint,pointToString,arrayToStr,pointArrayToObj,pointObjToArray } = require("../../../common/functions");
+const { fetch,cleanWrtStruct,strToPoint,pointToStr,arrayToStr,pointArrayToObj } = require("../../../common/functions");
+const { AMENITIES,TOURISM,PLACES,INTERESTS } = require('../../../common/dataStructures');
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const geolib = require('geolib');
 
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
@@ -30,7 +29,7 @@ module.exports.poi = async (req, res) => {
         if (squareSideStr == undefined) {
             squareSide = 50000;
         } else {
-            right = isNan(squareSide = parseFloat(squareSideStr));
+            right = !isNaN(squareSide = parseFloat(squareSideStr));
         }
     } else {
         right = false;
@@ -39,17 +38,18 @@ module.exports.poi = async (req, res) => {
         boundingBoxStr = boundingBoxtoStr(point,squareSide);
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
         tourismStr = dictFieldsToStr(interests,TOURISM);
-        console.log("[out:json];("
-        + (amenitiesStr != "" ? "nwr(" + boundingBoxStr + ")[amenity~'^(" + amenitiesStr + ")$'];" : "")
-        + (tourismStr != "" ? "nwr(" + boundingBoxStr + ")[tourism~'^(" + tourismStr + ")$'];" : "")
-        + ");out;");
         queryOverpass("[out:json];("
-                        + (amenitiesStr != "" ? "nwr(" + boundingBoxStr + ")[amenity~'^(" + amenitiesStr + ")$'];" : "")
-                        + (tourismStr != "" ? "nwr(" + boundingBoxStr + ")[tourism~'^(" + tourismStr + ")$'];" : "")
+                        + (amenitiesStr != "" ? "nwr(" + boundingBoxStr + ")[\"addr:city\"][amenity~'^(" + amenitiesStr + ")$'];" : "")
+                        + (tourismStr != "" ? "nwr(" + boundingBoxStr + ")[\"addr:city\"][tourism~'^(" + tourismStr + ")$'];" : "")
                         + ");out;")
-            .then(response => response.json()).then(response => res.status(200).json(response))
+            .then(response => {
+                try {
+                    return response.json();
+                } catch (error) {
+                    return new Promise((resolve,reject) => reject(error))
+                }
+            }).then(response => res.status(200).json(response))
             .catch(err => {
-                console.error(err);
                 res.status(400).json({
                     error: MSG.badRequest
                 });
@@ -68,10 +68,10 @@ module.exports.nearbyCities = async (req, res) => {
 
     let point;
     if ((point = strToPoint(strPoint)) != null) {
-        queryOverpass("[out:json];node(around:" + range + "," + pointToString(point) + ")[place~'^(" + arrayToStr(PLACES) + ")$'];out;")
-            .then(response => response.json()).then(response => res.status(200).json(response))
+        queryOverpass("[out:json];node(around:" + range + "," + pointToStr(point) + ")[place~'^(" + arrayToStr(PLACES) + ")$'];out;")
+            .then(response => response.json())
+            .then(response => res.status(200).json(response))
             .catch(err => {
-                console.error(err);
                 res.status(400).json({
                     error: MSG.badRequest
                 });
