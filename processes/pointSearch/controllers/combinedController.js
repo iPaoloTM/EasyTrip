@@ -64,7 +64,7 @@ module.exports.getCombined = async (req, res) => {
 
       res.status(200).json({
           success: true,
-          message: weatherResponse.message+" and these are the point of interests you can visit "+poiResponse.message+" and this is the bike sharing service available: "+bikeResponse.name
+          message: weatherResponse.message+" and these are the point of interests you cannot visit anything "+" but this is the bike sharing service available: "+bikeResponse.name
       });
 
 
