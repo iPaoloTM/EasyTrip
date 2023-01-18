@@ -25,16 +25,28 @@ module.exports.poi = async (req, res) => {
     let right = true;
     let point,squareSide,boundingBoxStr,amenitiesStr,tourismStr;
 
+<<<<<<< HEAD
     if ((interests = cleanWrtStruct(interests,INTERESTS)).length
+=======
+    if ((interests = cleanWrtStruct(interests,INTERESTS)).length!=null
+>>>>>>> osm_tools
      && (point = strToPoint(strPoint)) != null) {
         if (squareSideStr == undefined) {
             squareSide = 50000;
         } else {
+<<<<<<< HEAD
             right = isNan(squareSide = parseFloat(squareSideStr));
+=======
+            right = !isNaN(squareSide = parseFloat(squareSideStr));
+>>>>>>> osm_tools
         }
     } else {
         right = false;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> osm_tools
     if (right) {
         boundingBoxStr = boundingBoxtoStr(point,squareSide);
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
@@ -56,7 +68,11 @@ module.exports.poi = async (req, res) => {
             });
     } else {
         res.status(400).json({
+<<<<<<< HEAD
             error: MSG.badRequest
+=======
+            error: MSG.badRequest+interests+" "+point
+>>>>>>> osm_tools
         });
     }
 };
