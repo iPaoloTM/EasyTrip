@@ -15,9 +15,8 @@ module.exports.poi = async (req, res) => {
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-ers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
-<<<<<<< HEAD
 
     let interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];  //topic of search (possible values: amenities or tourism keys)
     let strPoint = req.query.point; //referring point for the search
@@ -26,42 +25,17 @@ module.exports.poi = async (req, res) => {
     let right = true;
     let point,squareSide,boundingBoxStr,amenitiesStr,tourismStr;
 
-<<<<<<< HEAD
-    if ((interests = cleanWrtStruct(interests,INTERESTS)).length
-=======
     if ((interests = cleanWrtStruct(interests,INTERESTS)).length!=null
->>>>>>> osm_tools
-=======
-    
-    let interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];  //topic of search (possible values: amenities or tourism keys)
-    let strPoint = req.query.point; //referring point for the search
-    let squareSideStr = req.query.squareSide;   //side of square area of search
-    
-    let right = true;
-    let point,squareSide,boundingBoxStr,amenitiesStr,tourismStr;
-
-    if ((interests = cleanWrtStruct(interests,INTERESTS)).length
->>>>>>> path_search
      && (point = strToPoint(strPoint)) != null) {
         if (squareSideStr == undefined) {
             squareSide = 50000;
         } else {
-<<<<<<< HEAD
-            right = isNan(squareSide = parseFloat(squareSideStr));
-<<<<<<< HEAD
-=======
             right = !isNaN(squareSide = parseFloat(squareSideStr));
->>>>>>> osm_tools
-=======
->>>>>>> path_search
         }
     } else {
         right = false;
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> osm_tools
     if (right) {
         boundingBoxStr = boundingBoxtoStr(point,squareSide);
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
@@ -83,11 +57,7 @@ module.exports.poi = async (req, res) => {
             });
     } else {
         res.status(400).json({
-<<<<<<< HEAD
-            error: MSG.badRequest
-=======
             error: MSG.badRequest+interests+" "+point
->>>>>>> osm_tools
         });
     }
 };
@@ -122,33 +92,21 @@ function boundingBoxtoStr(point,squareSide) {
 }
 
 function dictFieldsToStr(fields,dict,sep = "|") {
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> path_search
     let res = "";
     for (const field of fields) {
         res += dict[field] != undefined ? sep + arrayToStr(dict[field]) : "";
     }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> path_search
     return res.slice(1);
 }
 
 function queryOverpass(query) {
     return fetch("https://www.overpass-api.de/api/interpreter?", {
         method: 'POST',
-        headers: {
+        ers: {
             'Accept': 'application/json',
         },
         body: query
     })
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> path_search

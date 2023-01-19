@@ -13,8 +13,4 @@ const INTERESTS = new Set([...Object.keys(AMENITIES), ...Object.keys(TOURISM)]);
 
 const PLACES = ["city","town","village","hamlet"];
 
-<<<<<<< HEAD
 module.exports = { AMENITIES, TOURISM, INTERESTS, PLACES }
-=======
-module.exports = { AMENITIES, TOURISM, INTERESTS, PLACES }
->>>>>>> path_search

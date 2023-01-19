@@ -19,52 +19,70 @@ module.exports.getCombined = async (req, res) => {
 
       async function getDataFromWeatherEndpoint() {
       try {
-        const response = await request('http://localhost:12346/v1/weather/forecast?city='+req.query.city);
-        const responseBody = JSON.parse(response);
-        //console.log(response);
-        return responseBody;
+        const currResponse = await request('http://localhost:12347/v1/weather/current?city='+req.query.city);
+        const currWeather = JSON.parse(currResponse);
+
+        const forecastResponse = await request('http://localhost:12347/v1/weather/forecast?city='+req.query.city);
+        const forecastWeather = JSON.parse(forecastResponse);
+
+        const response = '"current": "'+currWeather.message+'", "forecasts": ['+forecastWeather.message+']'
+
+        return response;
         } catch (error) {
           console.error(error)
+        }
+      }
+
+      async function getDataFromGeoCode() {
+      try {
+        const geocode = await request('http://localhost:12346/v1/routing/geocode?address='+req.query.city+'&limit=1');
+        const responseGeocode = JSON.parse(geocode);
+
+        return responseGeocode.hits;
+        } catch (error) {
+          console.error(error);
         }
       }
 
       async function getDataFromPOIEndpoint() {
       try {
-        const response = await request('http://localhost:12346/v1/locations/poi?point=42.739543,12.094038&squareSide=1000&interest=sustenance&interest=torusim');
+        const geocode = await request('http://localhost:12346/v1/routing/geocode?address='+req.query.city+'&limit=1');
+        const responseGeocode = JSON.parse(geocode);
+
+        const coord = responseGeocode.hits[0].point.lat + "," + responseGeocode.hits[0].point.lng
+        const bBox = responseGeocode.hits[0].extent
+
+        const response = await request('http://localhost:12346/v1/locations/poi?point='+coord+'&squareSide=1000&interest=Sustenance&interest=Torusim');
         const responseBody = JSON.parse(response);
-        //console.log(response);
-        return responseBody;
+
+        return responseBody.elements;
         } catch (error) {
-          console.error(error)
+          console.error(error+" from poi")
         }
       }
 
       async function getDataFromBikeEndpoint() {
       try {
-        const response = await request("https://api.citybik.es/v2/networks");
+        const response = await request('http://localhost:12347/v1/bikes/networks?city='+req.query.city);
         const responseBody = JSON.parse(response);
-        var result=0;
-        console.log(responseBody)
-        responseBody.networks.forEach((item, i) => {
 
-          if (responseBody.networks[i].location.city === req.query.city) {
-            result=responseBody.networks[i];
-          }
-        });
-        console.log(result);
-        return result;
+        return responseBody.message;
         } catch (error) {
           console.error(error)
         }
       }
 
+      const geocodeResponse = await getDataFromGeoCode();
       const weatherResponse = await getDataFromWeatherEndpoint();
-      const poiResponse = await getDataFromPOIEndpoint();
       const bikeResponse = await getDataFromBikeEndpoint();
+      const poiResponse = await getDataFromPOIEndpoint();
 
       res.status(200).json({
           success: true,
-          message: weatherResponse.message+" and these are the point of interests you cannot visit anything "+" but this is the bike sharing service available: "+bikeResponse.name
+          city: geocodeResponse,
+          weather:weatherResponse,
+          bike: bikeResponse,
+          poi: poiResponse
       });
 
 

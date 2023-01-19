@@ -23,8 +23,8 @@ module.exports.current = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        user: req.loggedUser,
-        message: 'current weather in '+req.query.city+' is '+desc
+        text: 'current weather in '+req.query.city+' is '+desc,
+        message: desc
     });
 };
 
@@ -47,7 +47,7 @@ module.exports.forecast = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: forecasts,
-        array: array
+        text: forecasts,
+        message: array
     });
 };
