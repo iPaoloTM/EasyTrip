@@ -17,19 +17,28 @@ module.exports.getCombined = async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
 
-      async function getDataFromWeatherEndpoint() {
+      async function getCurrentDataFromWeatherEndpoint() {
       try {
         const currResponse = await request('http://localhost:12347/v1/weather/current?city='+req.query.city);
         const currWeather = JSON.parse(currResponse);
 
+        return currWeather.message;
+        } catch (error) {
+          console.error(error)
+          return "No current weather data"
+        }
+      }
+
+      async function getForecastsDataFromWeatherEndpoint() {
+      try {
+
         const forecastResponse = await request('http://localhost:12347/v1/weather/forecast?city='+req.query.city);
         const forecastWeather = JSON.parse(forecastResponse);
 
-        const response = '"current": "'+currWeather.message+'", "forecasts": ['+forecastWeather.message+']'
-
-        return response;
+        return forecastWeather.message;
         } catch (error) {
           console.error(error)
+          return "No forecast weather data"
         }
       }
 
@@ -41,6 +50,7 @@ module.exports.getCombined = async (req, res) => {
         return responseGeocode.hits;
         } catch (error) {
           console.error(error);
+          return "No geocode data"
         }
       }
 
@@ -57,7 +67,8 @@ module.exports.getCombined = async (req, res) => {
 
         return responseBody.elements;
         } catch (error) {
-          console.error(error+" from poi")
+          console.error(error)
+          return "No Point of Interests to visit"
         }
       }
 
@@ -69,20 +80,22 @@ module.exports.getCombined = async (req, res) => {
         return responseBody.message;
         } catch (error) {
           console.error(error)
+          return "No bike sharing data";
         }
       }
 
       const geocodeResponse = await getDataFromGeoCode();
-      const weatherResponse = await getDataFromWeatherEndpoint();
+      const currentWeatherResponse = await getCurrentDataFromWeatherEndpoint();
+      const forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint();
       const bikeResponse = await getDataFromBikeEndpoint();
       const poiResponse = await getDataFromPOIEndpoint();
 
       res.status(200).json({
           success: true,
-          city: geocodeResponse,
-          weather:weatherResponse,
+          city: geocodeResponse[0],
+          weather: {current: currentWeatherResponse, forecasts: forecastsWeatherResponse},
           bike: bikeResponse,
-          poi: poiResponse
+          poi: poiResponse[0]
       });
 
 
