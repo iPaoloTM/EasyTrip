@@ -1,10 +1,12 @@
-function cleanWrtStruct(toClean,referringStruct) {
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+function cleanWrtStruct(toClean,referringStruct) {
+    
     let i = toClean.length;
     let isIn = referringStruct instanceof Set ? element => referringStruct.has(element)
                 : Array.isArray(referringStruct) ? element => referringStruct.indexOf(element) != -1
                 : element => referringStruct[element] != undefined;
-
+    
     while (i--) {
         if (!isIn(toClean[i])) {
             toClean.splice(i, 1);
@@ -14,41 +16,50 @@ function cleanWrtStruct(toClean,referringStruct) {
     return toClean;
 }
 
-function strToPoint(strPoint) {
+function checkStrFloatArray(strArray,sep = ",") {
 
-    let point;
-    let right = strPoint != undefined;
+    let array;
+    let right = strArray != undefined;
     let i = 0;
 
     if (right) {
-        point = strPoint.split(",");
-        while (right && i < point.length) {
-            if (isNaN(point[i] = parseFloat(point[i]))) {
+        array = strArray.split(sep);
+        while (right && i < array.length) {
+            if (isNaN(array[i] = parseFloat(array[i]))) {
                 right = false;
             }
             i++;
         }
     }
-    return right ? point : null;
+
+    return right ? array : null;
 }
 
-function pointToString(point) {
+function strToPoint(strPoint,reverse = false) {
+    
+    let point = checkStrFloatArray(strPoint);
 
+    return point != null ? (reverse ? reversePointArray(point) : point) : null;
+}
+
+function pointToStr(point) {
+    
     let res = "";
 
     if (Array.isArray(point)) {
-        res = point[0] + "," + point[1];
+        res = arrayToStr(point,",");
     } else {
-        res = point.latitude + "," + point.longitude;
+        res = (point.latitude != undefined ? point.latitude : point.point.lat) + ","
+                + (point.longitude != undefined ? point.longitude : point.point.lng);
     }
 
     return res;
 }
 
-function arrayToStr(array,sep = "|") {
-
-    let res = array[0] != undefined ? array[0] : "";
-
+function arrayToStr(array,sep = "|",firstSep = false) {
+    
+    let res = array[0] != undefined ? (firstSep ? sep : "") + array[0] : "";
+    
     for (let i = 1; i < array.length; i++) {
         res += sep + array[i];
     }
@@ -56,15 +67,19 @@ function arrayToStr(array,sep = "|") {
     return res;
 }
 
-function pointArrayToObj(point) {
+function pointArrayToObj(point,reverse = false) {
     return {
-        latitude: point[0],
-        longitude: point[1]
+        latitude: point[reverse ? 1 : 0],
+        longitude: point[reverse ? 0 : 1]
     }
 }
 
-function pointObjToArray(point) {
-    return [point.latitude,point.longitude];
+function pointObjToArray(point,reverse = false) {
+    return [reverse ? point.longitude : point.latitude,reverse ? point.latitude : point.longitude];
 }
 
-module.exports = { cleanWrtStruct,strToPoint,pointToString,arrayToStr,pointArrayToObj,pointObjToArray }
+function reversePointArray(point) {
+    return point.reverse();
+}
+
+module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray }
