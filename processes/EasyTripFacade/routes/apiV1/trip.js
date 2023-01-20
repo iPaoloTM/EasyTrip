@@ -6,8 +6,8 @@ const verifyToken = require('../../middleware/auth');
 
 const eventHandler = require('../../controllers/tripController');
 
-router.get('/destination', verifyToken, eventHandler.destination);
+router.get('/destination'/*, verifyToken*/, eventHandler.destination);
 
-router.get('/stops', verifyToken, eventHandler.stops);
+router.get('/stops'/*, verifyToken*/, eventHandler.stops);
 
 module.exports = router;

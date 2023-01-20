@@ -13,7 +13,7 @@ module.exports.destination = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        user: req.loggedUser,
+        //user: req.loggedUser,
         message: 'ES1 con token'
     });
 };
@@ -26,6 +26,7 @@ module.exports.stops = async (req, res) => {
 
 	res.status(200).json({
         success: true,
+        //user: req.loggedUser,
         message: 'ES2 senza token'
     });
 };
