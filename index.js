@@ -1,11 +1,12 @@
 'use strict';
 
 const config = require('./config');
-const { AUTH_PORT,OSM_PORT,POINT_PORT,PATH_PORT } = require("./common/dataStructures");
+const { AUTH_PORT,OSM_PORT,POINT_PORT,PATH_PORT, FACADE_PORT } = require("./common/dataStructures");
 const auth = require('./processes/auth/service');
 const OSMTools = require('./processes/OSMTools/service');
 const pointSearch = require('./processes/pointSearch/service');
 const pathSearch = require('./processes/pathSearch/service');
+const EasyTripFacade = require('./processes/EasyTripFacade/service');
 
 
 config.initDB()
@@ -26,6 +27,10 @@ config.initDB()
 
         const pPath = pathSearch.listen(PATH_PORT, () => {
             console.log("Path Search process started. Port: ", PATH_PORT);
+        });
+
+        const ETF = EasyTripFacade.listen(FACADE_PORT, () => {
+            console.log("EasyTrip process started. Port: ", FACADE_PORT);
         });
     })
     .catch(err => {
