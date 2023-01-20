@@ -18,8 +18,7 @@ module.exports.current = async (req, res) => {
     const city=req.query.city;
     const response = await fetch("https://api.weatherbit.io/v2.0/current?city="+city+"&key="+process.env.WEATHER_API_KEY+"&lang=it");
     const data = await response.json();
-    //adapter?
-    const desc = data.data[0].weather["description"];
+    //adapter
 
     res.status(200).json({
         success: true,
