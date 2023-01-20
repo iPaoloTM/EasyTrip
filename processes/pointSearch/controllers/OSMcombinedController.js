@@ -89,7 +89,6 @@ module.exports.getCombined = async (req, res) => {
 
         const response = await request(POINT_SEARCH_URL + '/v1/bikes/networks?city='+req.query.end);
         const responseBody = JSON.parse(response);
-        console.log(responseBody)
 
         return responseBody.message;
         } catch (error) {
