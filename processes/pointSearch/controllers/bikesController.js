@@ -19,7 +19,7 @@ module.exports.getBikeNetworks = async (req, res) => {
     const data = await response.json();
     var result;
 
-    result = data.networks.find(network => network.location.city === req.query.city);
+    result = data.networks.find(network => network.location.city == req.query.city);
 
     if (result == undefined) {
 

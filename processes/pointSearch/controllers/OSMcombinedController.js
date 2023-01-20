@@ -19,7 +19,7 @@ module.exports.getCombined = async (req, res) => {
 
       async function getCurrentDataFromWeatherEndpoint() {
       try {
-        const currResponse = await request(POINT_SEARCH_URL + '/v1/weather/current?city='+req.query.city);
+        const currResponse = await request(POINT_SEARCH_URL + '/v1/weather/current?city='+req.query.end);
         const currWeather = JSON.parse(currResponse);
 
         return currWeather.message;
@@ -32,7 +32,7 @@ module.exports.getCombined = async (req, res) => {
       async function getForecastsDataFromWeatherEndpoint() {
       try {
 
-        const forecastResponse = await request(POINT_SEARCH_URL + '/v1/weather/forecast?city='+req.query.city);
+        const forecastResponse = await request(POINT_SEARCH_URL + '/v1/weather/forecast?city='+req.query.end);
         const forecastWeather = JSON.parse(forecastResponse);
 
         return forecastWeather.message;
@@ -44,7 +44,7 @@ module.exports.getCombined = async (req, res) => {
 
       async function getDataFromGeoCode() {
       try {
-        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.city+'&limit=1');
+        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.end+'&limit=1');
         const responseGeocode = JSON.parse(geocode);
 
         return responseGeocode.hits[0];
@@ -57,7 +57,8 @@ module.exports.getCombined = async (req, res) => {
       async function getDataFromPOIEndpoint() {
       let results;
       try {
-        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.city+'&limit=1');
+
+        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.end+'&limit=1');
         const responseGeocode = JSON.parse(geocode);
 
         const interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];
@@ -85,8 +86,10 @@ module.exports.getCombined = async (req, res) => {
 
       async function getDataFromBikeEndpoint() {
       try {
-        const response = await request(POINT_SEARCH_URL + '/v1/bikes/networks?city='+req.query.city);
+
+        const response = await request(POINT_SEARCH_URL + '/v1/bikes/networks?city='+req.query.end);
         const responseBody = JSON.parse(response);
+        console.log(responseBody)
 
         return responseBody.message;
         } catch (error) {
@@ -95,14 +98,35 @@ module.exports.getCombined = async (req, res) => {
         }
       }
 
-      const geocodeResponse = await getDataFromGeoCode();
-      const currentWeatherResponse = await getCurrentDataFromWeatherEndpoint();
-      const forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint();
-      const bikeResponse = await getDataFromBikeEndpoint();
-      const poiResponse = await getDataFromPOIEndpoint();
+      const endCity = req.query.end
+      const weatheFlag = req.query.weather
+      const bikeFlag = req.query.bikes
+
+      var geocodeResponse; // = await getDataFromGeoCode();
+      var currentWeatherResponse; // = await getCurrentDataFromWeatherEndpoint();
+      var forecastsWeatherResponse; // = await getForecastsDataFromWeatherEndpoint();
+      var bikeResponse; // = await getDataFromBikeEndpoint();
+      var poiResponse; // = await getDataFromPOIEndpoint();
+
+      if (endCity != undefined) {
+        geocodeResponse = await getDataFromGeoCode();
+
+        if (geocodeResponse != undefined) {
+
+          poiResponse = await getDataFromPOIEndpoint();
+        }
+      }
+
+      if (weatheFlag) {
+        currentWeatherResponse = await getCurrentDataFromWeatherEndpoint();
+        forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint();
+      }
+
+      if (bikeFlag)
+        bikeResponse = await getDataFromBikeEndpoint();
+
 
       res.status(200).json({
-          success: true,
           city: geocodeResponse,
           weather: {current: currentWeatherResponse, forecasts: forecastsWeatherResponse},
           bike: bikeResponse,
