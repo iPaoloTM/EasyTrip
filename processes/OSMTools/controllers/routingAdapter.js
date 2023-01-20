@@ -29,7 +29,7 @@ module.exports.geocode = async (req, res) => {
             }
         }).then(response => response.json()).then(response => res.status(200).json(response))
         .catch(err => {
-            console.error(err);
+            //console.error(err);
             res.status(400).json({
                 error: MSG.badRequest
             });

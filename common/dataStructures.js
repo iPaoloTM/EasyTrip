@@ -6,6 +6,7 @@ const POINT_PORT = process.env.POINT_PORT || 12347;
 const PATH_PORT = process.env.PATH_PORT || 12348;
 
 const OSM_TOOLS_URL = SERVER_BASE_URL + ":" + OSM_PORT;
+const POINT_SEARCH_URL = SERVER_BASE_URL + ":" + POINT_PORT;
 
 const AMENITIES = {
     sustenance: ["bar","biergarten","cafe","fast_food","food_court","ice_cream","pub","restaurant"],
@@ -35,4 +36,4 @@ const PROFILES = {
     racingbike: "Racing bike"
 }
 
-module.exports = { SERVER_BASE_URL,AUTH_PORT,OSM_PORT,POINT_PORT,PATH_PORT,OSM_TOOLS_URL,AMENITIES,TOURISM,INTERESTS,PLACES,PROFILES }
+module.exports = { SERVER_BASE_URL,AUTH_PORT,OSM_PORT,POINT_PORT,PATH_PORT,OSM_TOOLS_URL,POINT_SEARCH_URL,AMENITIES,TOURISM,INTERESTS,PLACES,PROFILES }

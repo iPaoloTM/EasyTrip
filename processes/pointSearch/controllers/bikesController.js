@@ -17,17 +17,11 @@ module.exports.getBikeNetworks = async (req, res) => {
     const city=req.query.city;
     const response = await fetch("https://api.citybik.es/v2/networks");
     const data = await response.json();
-    var result=0;
+    var result;
 
-    data.networks.forEach((item, i) => {
+    result = data.networks.find(network => network.location.city === req.query.city);
 
-      if (data.networks[i].location.city === req.query.city) {
-        result=data.networks[i];
-      }
-
-    });
-
-    if (result == 0) {
+    if (result == undefined) {
 
       res.status(404).json({
           success: false,
