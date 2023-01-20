@@ -1,6 +1,6 @@
 'use strict';
 
-const { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,pointToStr,arrayToStr,pointArrayToObj } = require("../../../common/functions");
+const { fetch,cleanWrtStruct,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj } = require("../../../common/functions");
 const { AMENITIES,TOURISM,PLACES,INTERESTS } = require('../../../common/dataStructures');
 
 const geolib = require('geolib');
@@ -14,19 +14,19 @@ module.exports.poi = async (req, res) => {
     
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-ers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
     
     let interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];  //topic of search (possible values: amenities or tourism keys)
     let strPoint = req.query.point; //referring point for the search
     let squareSideStr = req.query.squareSide;   //side of square area of search
-    let bboxStr = req.query.bbox; //Bounding box of search (alternative of point-squareSide)
+    let bboxStr = req.query.bbox; //Bounding box ([minLon,minLat,maxLon,maxLat]) of search (alternative of point-squareSide)
     
     let right = true;
     let point,squareSide,amenitiesStr,tourismStr,bbox;
 
     if ((interests = cleanWrtStruct(interests,INTERESTS)).length
-     && ((bbox = checkStrFloatArray(bboxStr)) != null || (point = strToPoint(strPoint)) != null)) {
+     && ((bbox = strToBbox(bboxStr,true)) != null || (point = strToPoint(strPoint)) != null)) {
         if (bbox == null) {
             if (squareSideStr == undefined) {
                 squareSide = 50000;
@@ -39,9 +39,7 @@ module.exports.poi = async (req, res) => {
     }
 
     if (right) {
-        if (bbox == null) {
-            bboxStr = buildBboxStr(point,squareSide);
-        }
+        bboxStr = (bbox == null) ? buildBboxStr(point,squareSide) : arrayToStr(bbox,",");
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
         tourismStr = dictFieldsToStr(interests,TOURISM);
         queryOverpass("[out:json];("
@@ -62,7 +60,7 @@ module.exports.poi = async (req, res) => {
             });
     } else {
         res.status(400).json({
-            error: MSG.badRequest+interests+" "+point
+            error: MSG.badRequest
         });
     }
 };
@@ -109,7 +107,7 @@ function dictFieldsToStr(fields,dict,sep = "|") {
 function queryOverpass(query) {
     return fetch("https://www.overpass-api.de/api/interpreter?", {
         method: 'POST',
-        ers: {
+        headers: {
             'Accept': 'application/json',
         },
         body: query

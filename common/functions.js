@@ -42,6 +42,13 @@ function strToPoint(strPoint,reverse = false) {
     return point != null ? (reverse ? reversePointArray(point) : point) : null;
 }
 
+function strToBbox(strBbox,reverse = false) {
+    
+    let bbox = checkStrFloatArray(strBbox);
+
+    return bbox != null ? (reverse ? reverseBbox(bbox) : bbox) : null;
+}
+
 function pointToStr(point) {
     
     let res = "";
@@ -82,4 +89,8 @@ function reversePointArray(point) {
     return point.reverse();
 }
 
-module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray }
+function reverseBbox(bbox) {
+    return [bbox[1],bbox[0],bbox[3],bbox[2]];
+}
+
+module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray,reverseBbox }
