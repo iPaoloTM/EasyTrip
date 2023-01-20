@@ -1,6 +1,6 @@
 'use strict';
 
-const { fetch } = require("../../../common/functions");
+const { fetch, strToPoint } = require("../../../common/functions");
 const { PROFILES } = require("../../../common/dataStructures");
 
 let MSG = {
@@ -60,14 +60,8 @@ module.exports.route = async (req, res) => {
      && (shortAnswer == undefined || shortAnswer === 'true' || shortAnswer === 'false')) {
         points = Array(strPoints.length);
         while (right && i < strPoints.length && typeof strPoints[i] == "string") {
-            points[i] = strPoints[i].split(",");
-            j = 0;
-            while (right && j < points[i].length) {
-                if (isNaN(points[i][j] = parseFloat(points[i][j]))) {
-                    right = false;
-                }
-                j++;
-            }
+            points[i] = strToPoint(strPoints[i]);
+            right = points[i] != null;
             i++;
         }
     } else {
