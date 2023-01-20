@@ -18,7 +18,7 @@ module.exports.stops = async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
     let params = getCommonQueryParams(req.query);
-    params["poisDescriptions"] = req.query.poisDescriptions
+    params["poisDescriptions"] = req.query.poisDescriptions;
 
     let stops = await getStops(params.start,params.end,params.interests,params.strLimit,params.minDistanceStr,params.maxDetourStr,params.profile,params.poisDescriptions);
 
