@@ -85,6 +85,13 @@ function pointObjToArray(point,reverse = false) {
     return [reverse ? point.longitude : point.latitude,reverse ? point.latitude : point.longitude];
 }
 
+function pointObjCompleteNames(point) {
+    return {
+        latitude: point.lat,
+        longitude: point.lon ?? point.lng
+    }
+}
+
 function reversePointArray(point) {
     return point.reverse();
 }
@@ -93,4 +100,4 @@ function reverseBbox(bbox) {
     return [bbox[1],bbox[0],bbox[3],bbox[2]];
 }
 
-module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,reversePointArray,reverseBbox }
+module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,pointObjCompleteNames,reversePointArray,reverseBbox }

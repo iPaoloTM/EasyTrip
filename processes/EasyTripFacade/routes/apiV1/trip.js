@@ -8,6 +8,6 @@ const eventHandler = require('../../controllers/tripController');
 
 router.get('/destination'/*, verifyToken*/, eventHandler.destination);
 
-router.get('/stops'/*, verifyToken*/, eventHandler.stops);
+router.get('/travel'/*, verifyToken*/, eventHandler.travel);
 
 module.exports = router;
