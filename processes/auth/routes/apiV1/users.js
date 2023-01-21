@@ -10,6 +10,6 @@ router.post('/login', userHandler.login_users);
 
 router.post('/signup', userHandler.signup_users);
 
-router.use('/google', googleHandler)
+router.use('/auth/google', googleHandler)
 
 module.exports = router;
