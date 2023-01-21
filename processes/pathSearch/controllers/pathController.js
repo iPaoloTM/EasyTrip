@@ -1,6 +1,6 @@
 'use strict';
 
-const { pointToStr,pointArrayToObj,cleanWrtStruct,arrayToStr,reversePointArray } = require("../../../common/functions");
+const { pointToStr,pointArrayToObj,cleanWrtStruct,arrayToStr,reversePointArray, pointObjCompleteNames } = require("../../../common/functions");
 const { OSM_TOOLS_URL,INTERESTS,PROFILES } = require("../../../common/dataStructures");
 
 const request = require('request-promise');
@@ -44,9 +44,9 @@ module.exports.routeGET = async (req, res) => {
 
     let stops = await getStops(params.start,params.end,params.interests,params.strLimit,params.minDistanceStr,params.maxDetourStr,params.profile,false);
 
-    let route = await getRoute(stops);
+    let route = await getRoute(stops,params.profile);
 
-    if (stops != null) {
+    if (route.paths != null) {
         res.status(200).json({
             //user: req.loggedUser,
             route: route
@@ -64,11 +64,12 @@ module.exports.routePOST = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
+    let profile = req.query.profile;
     let stops = req.body.stops;
 
-    let route = await getRoute(stops);
+    let route = await getRoute(stops,profile);
 
-	if (stops != null) {
+	if (route.paths != null) {
         res.status(200).json({
             //user: req.loggedUser,
             route: route
@@ -100,25 +101,30 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
         intermediates: []
     };
     let poiDirections = [0,-1,1];
-    let i, j, limit, minDistance, maxDetour, right, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
+    let right = true;
+    let i, j, limit, minDistance, maxDetour, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
     //Request check
     if (start != undefined
             && end != undefined
-            && (interests = cleanWrtStruct(interests,INTERESTS)).length
             && !isNaN(limit = parseInt(strLimit)) && limit >= 0 && limit <= 8
-            && !isNaN(minDistance = parseFloat(minDistanceStr))
-            && !isNaN(maxDetour = parseFloat(maxDetourStr)) && maxDetour <= (minDistance/2)
             && PROFILES[profile] != undefined) {
+        if (limit > 0) {
+            right = (interests = cleanWrtStruct(interests,INTERESTS)).length
+            && !isNaN(minDistance = parseFloat(minDistanceStr))
+            && !isNaN(maxDetour = parseFloat(maxDetourStr)) && maxDetour <= (minDistance/2);
+        }
         //Retrieve start and end coordinates and informations
-        try {
-            stops.start = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + start)
+        if (right) {
+            try {
+                stops.start = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + start)
+                                .then(response => JSON.parse(response))).hits[0];
+                stops.end = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + end)
                             .then(response => JSON.parse(response))).hits[0];
-            stops.end = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + end)
-                        .then(response => JSON.parse(response))).hits[0];
-            right = stops.start != undefined && stops.end != undefined ? true : false;
-        } catch (error) {
-            console.error(error);
-            right = false;
+                right = stops.start != undefined && stops.end != undefined ? true : false;
+            } catch (error) {
+                console.error(error);
+                right = false;
+            }
         }
     } else {
         right = false;
@@ -134,12 +140,16 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                 
                 //Find at most limit intermediary points at least minDistance apart
                 right = false;
-                while (limit > 0 && !right) {
+                while (limit >= 0 && !right) {
+                    console.log(limit);
+                    stops.intermediates = [];
                     subPathLen = Math.round(path.points.coordinates.length/(limit+1));
                     for (i = subPathLen; i < subPathLen*(limit+1); i += subPathLen) {
                         stops.intermediates.push(path.points.coordinates[i]);
                     }
-                    if (geolib.getDistance(pointArrayToObj(stops.intermediates[0]),pointArrayToObj(stops.intermediates[1])) < minDistance) {
+                    if (limit > 0
+                        && geolib.getDistance(pointArrayToObj(stops.intermediates[0]),
+                            limit > 1 ? pointArrayToObj(stops.intermediates[1]) : pointObjCompleteNames(stops.end.point)) < minDistance) {
                         limit--;
                     } else {
                         right = true;
@@ -217,11 +227,11 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                     .then(response => JSON.parse(response))).hits[0];
                 }
             } catch (error) {
-                stops.intermediates = null;
+                stops = null;
             }
         }
     } else {
-        stops.intermediates = null;
+        stops = null;
     }
 
     return stops;
@@ -299,7 +309,7 @@ async function getRoute(stops,profile = "car") {
     }
 
     return {
-        paths: [path]
+        paths: path != null ? [path] : null
     };
 }
 
