@@ -98,6 +98,7 @@ module.exports.getCombined = async (req, res) => {
       }
 
       const endCity = req.query.end
+      const interests = req.query.interest
       const weatheFlag = req.query.weather
       const bikeFlag = req.query.bikes
 
@@ -110,24 +111,23 @@ module.exports.getCombined = async (req, res) => {
       if (endCity != undefined) {
         geocodeResponse = await getDataFromGeoCode();
 
-        if (geocodeResponse != undefined) {
-
+        if (interests != undefined) {
           poiResponse = await getDataFromPOIEndpoint();
         }
       }
 
-      if (weatheFlag) {
+      if (weatheFlag === "true") {
         currentWeatherResponse = await getCurrentDataFromWeatherEndpoint();
         forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint();
       }
 
-      if (bikeFlag)
+      if (bikeFlag === "true")
         bikeResponse = await getDataFromBikeEndpoint();
 
 
       res.status(200).json({
           city: geocodeResponse,
-          weather: {current: currentWeatherResponse, forecasts: forecastsWeatherResponse},
+          weather: currentWeatherResponse != undefined && forecastsWeatherResponse != null ? {current: currentWeatherResponse, forecasts: forecastsWeatherResponse} : undefined,
           bike: bikeResponse,
           poi: poiResponse
       });
