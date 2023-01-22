@@ -22,20 +22,32 @@ paths:
         - name: city
           in: query
           required: true
-          type: string
+          schema:
+            type: string
+          description: City on which to get current weather status
       description: Get current weather status given a certain place
       responses:
         '200':
-          description: Success
+          description: 'Return a JSON with current weather status on given city'
+          content:
+            application/json:
+              schema:
+#                  $ref: '#/components/schemas/currentWeather'
           schema:
             type: object
             properties:
               success:
-                type: boolean
+                schema:
+                  type: boolean
+                  description: 'Success of request'
               text:
-                type: string
+                schema:
+                  type: string
+                  description: 'description of the current weather status in natural language'
               message:
-                type: string
+                schema:
+                  type: string
+                  description: 'current weather statusDocumenti'
   '/api/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
