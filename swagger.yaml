@@ -38,6 +38,7 @@ paths:
                 type: string
   '/api/v1/weather/forecast':
     get:
+      summary: Get weather forecast given a certain place
       tags:
         - Weather forecast
       parameters:
@@ -59,4 +60,3 @@ paths:
               message:
                 type: array
 components: {}
-tags: []
