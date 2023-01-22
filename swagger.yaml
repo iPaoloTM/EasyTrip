@@ -28,7 +28,7 @@ paths:
       description: Get current weather status given a certain place
       responses:
         '200':
-          description: 'Return a JSON with current weather status on given city'
+          description: Return a JSON with current weather status on given city
           content:
             application/json:
               schema:
@@ -39,15 +39,15 @@ paths:
               success:
                 schema:
                   type: boolean
-                  description: 'Success of request'
+                  description: Success of request
               text:
                 schema:
                   type: string
-                  description: 'description of the current weather status in natural language'
+                  description: description of the current weather status in natural language
               message:
                 schema:
                   type: string
-                  description: 'current weather statusDocumenti'
+                  description: current weather statusDocumenti
   '/api/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
