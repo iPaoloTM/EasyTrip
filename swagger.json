@@ -1,0 +1,97 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EasyTrip",
+    "version": "1.0.0",
+    "description": "EasyTrip official API",
+    "license": {
+      "name": "Licensed Under MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    },
+    "contact": {
+      "name": "JSONPlaceholder",
+      "url": "https://jsonplaceholder.typicode.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:12345",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/v1/weather/current": {
+      "get": {
+        "summary": "Get current weather given a certain place",
+        "tags": [
+          "Current Weather"
+        ],
+        "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+        "description": "Get current weather status given a certain place",
+        "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean"
+                                },
+                                "text": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+      }
+    },
+    "/api/v1/weather/forecast": {
+      "get": {
+        "tags": [
+          "Weather forecast"
+        ],
+        "parameters": [
+                   {
+                       "name": "city",
+                       "in": "query",
+                       "required": true,
+                       "type": "string"
+                   }
+               ],
+        "description": "Get weather forecasts up to 16 days given a certain place",
+        "responses": {
+                   "200": {
+                       "description": "Success",
+                       "schema": {
+                           "type": "object",
+                           "properties": {
+                               "success": {
+                                   "type": "boolean"
+                               },
+                               "text": {
+                                   "type": "string"
+                               },
+                               "message": {
+                                   "type": "array"
+                               }
+                           }
+                       }
+                   }
+                }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
