@@ -17,9 +17,9 @@ module.exports.getCombined = async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
 
-      async function getCurrentDataFromWeatherEndpoint() {
+      async function getCurrentDataFromWeatherEndpoint(city) {
       try {
-        const currResponse = await request(POINT_SEARCH_URL + '/v1/weather/current?city='+req.query.end);
+        const currResponse = await request(POINT_SEARCH_URL + '/v1/weather/current?city='+city);
         const currWeather = JSON.parse(currResponse);
 
         return currWeather.message;
@@ -29,10 +29,10 @@ module.exports.getCombined = async (req, res) => {
         }
       }
 
-      async function getForecastsDataFromWeatherEndpoint() {
+      async function getForecastsDataFromWeatherEndpoint(city) {
       try {
 
-        const forecastResponse = await request(POINT_SEARCH_URL + '/v1/weather/forecast?city='+req.query.end);
+        const forecastResponse = await request(POINT_SEARCH_URL + '/v1/weather/forecast?city='+city);
         const forecastWeather = JSON.parse(forecastResponse);
 
         return forecastWeather.message;
@@ -44,7 +44,7 @@ module.exports.getCombined = async (req, res) => {
 
       async function getDataFromGeoCode() {
       try {
-        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.end+'&limit=1');
+        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.address+'&limit=1');
         const responseGeocode = JSON.parse(geocode);
 
         return responseGeocode.hits[0];
@@ -54,11 +54,11 @@ module.exports.getCombined = async (req, res) => {
         }
       }
 
-      async function getDataFromPOIEndpoint() {
+      async function getDataFromPOIEndpoint(city) {
       let results;
       try {
 
-        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+req.query.end+'&limit=1');
+        const geocode = await request(OSM_TOOLS_URL + '/v1/routing/geocode?address='+city+'&limit=1');
         const responseGeocode = JSON.parse(geocode);
 
         const interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];
@@ -84,10 +84,10 @@ module.exports.getCombined = async (req, res) => {
         return results.length ? results : "No Point of Interests to visit";
       }
 
-      async function getDataFromBikeEndpoint() {
+      async function getDataFromBikeEndpoint(city) {
       try {
 
-        const response = await request(POINT_SEARCH_URL + '/v1/bikes/networks?city='+req.query.end);
+        const response = await request(POINT_SEARCH_URL + '/v1/bikes/networks?city='+city);
         const responseBody = JSON.parse(response);
 
         return responseBody.message;
@@ -97,40 +97,45 @@ module.exports.getCombined = async (req, res) => {
         }
       }
 
-      const endCity = req.query.end
+      const address = req.query.address
       const interests = req.query.interest
       const weatheFlag = req.query.weather
       const bikeFlag = req.query.bikes
 
       var geocodeResponse; // = await getDataFromGeoCode();
+      var city; //city of geocodeResponse
       var currentWeatherResponse; // = await getCurrentDataFromWeatherEndpoint();
       var forecastsWeatherResponse; // = await getForecastsDataFromWeatherEndpoint();
       var bikeResponse; // = await getDataFromBikeEndpoint();
       var poiResponse; // = await getDataFromPOIEndpoint();
 
-      if (endCity != undefined) {
+      if (address != undefined) {
         geocodeResponse = await getDataFromGeoCode();
 
-        if (interests != undefined) {
-          poiResponse = await getDataFromPOIEndpoint();
+        if (typeof geocodeResponse != String) {
+          city = geocodeResponse.city ?? geocodeResponse.name;
+          if (interests != undefined) {
+            poiResponse = await getDataFromPOIEndpoint(city);
+          }
+  
+          if (weatheFlag === "true") {
+            currentWeatherResponse = await getCurrentDataFromWeatherEndpoint(city);
+            forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint(city);
+          }
+    
+          if (bikeFlag === "true")
+            bikeResponse = await getDataFromBikeEndpoint(city);
         }
-      }
 
-      if (weatheFlag === "true") {
-        currentWeatherResponse = await getCurrentDataFromWeatherEndpoint();
-        forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint();
-      }
-
-      if (bikeFlag === "true")
-        bikeResponse = await getDataFromBikeEndpoint();
-
-
-      res.status(200).json({
-          city: geocodeResponse,
+        res.status(200).json({
+          address: geocodeResponse,
           weather: currentWeatherResponse != undefined && forecastsWeatherResponse != null ? {current: currentWeatherResponse, forecasts: forecastsWeatherResponse} : undefined,
           bike: bikeResponse,
           poi: poiResponse
       });
-
-
+      } else {
+        res.status(400).json({
+            error: MSG.badRequest
+        });
+      }
 };

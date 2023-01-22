@@ -23,7 +23,7 @@ module.exports.destination = async (req, res) => {
     });
 
     try {
-      const response = await request(POINT_SEARCH_URL + '/v2/combined/about?end='+req.query.end+'&weather='+req.query.weather+'&bikes='+req.query.bikes+interests);
+      const response = await request(POINT_SEARCH_URL + '/v2/combined/about?address='+req.query.address+'&weather='+req.query.weather+'&bikes='+req.query.bikes+interests);
       const responseBody = JSON.parse(response);
 
       res.status(200).json({
@@ -45,15 +45,6 @@ module.exports.travel = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
-
-    /*
-    {
-        start: paoloObj,
-        end: paoloObj,
-        intermediary: [paoloObj],
-        paths: [routeObj]
-    }
-    */
 
     let start = req.query.start;
     let end = req.query.end;
@@ -112,22 +103,22 @@ module.exports.travel = async (req, res) => {
                 pathSearchRes = await (request(url).then(response => JSON.parse(response)));
                 travel = {
                     start: {
-                        city: pathSearchRes.stops.start
+                        address: pathSearchRes.stops.start
                     },
                     end: {
-                        city: pathSearchRes.stops.end
+                        address: pathSearchRes.stops.end
                     },
                     intermediates: new Array(pathSearchRes.stops.intermediates.length),
                     paths: []
                 }
                 url = POINT_SEARCH_URL + "/v2/combined/about?"
-                    + "&end=" + end
+                    + "&address=" + end
                     + "&weather=" + (toDo.weather ? "true" : "false")
                     + "&bikes=" + (toDo.bikes ? "true" : "false")
                     + (toDo.poi ? arrayToStr(interests,"&interest=",true) : "");
                 for (i = 0; i < pathSearchRes.stops.intermediates.length; i++) {
                     travel.intermediates[i] = {
-                        city: pathSearchRes.stops.intermediates[i].details,
+                        address: pathSearchRes.stops.intermediates[i].details,
                     }
                     pointSearchRes = await (request(url).then(response => JSON.parse(response)));
                     if (toDo.weather) {
@@ -155,7 +146,7 @@ module.exports.travel = async (req, res) => {
             try {
                 url += "/route?start=" + start + "&end=" + end + "&limit=0";
                 pathSearchRes = await (request(url).then(response => JSON.parse(response)));
-                url = POINT_SEARCH_URL + "/v2/combined/about?end=" + end;
+                url = POINT_SEARCH_URL + "/v2/combined/about?address=" + end;
                 pointSearchRes = await (request(url + "&weather=false&bikes=false").then(response => JSON.parse(response)));
                 url += "&weather=" + (toDo.weather ? "true" : "false")
                 + "&bikes=" + (toDo.bikes ? "true" : "false")
