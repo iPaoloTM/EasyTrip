@@ -25,7 +25,7 @@ module.exports.getCombined = async (req, res) => {
         return currWeather.message;
         } catch (error) {
           console.error(error)
-          return "No current weather data"
+          return []
         }
       }
 
@@ -38,7 +38,7 @@ module.exports.getCombined = async (req, res) => {
         return forecastWeather.message;
         } catch (error) {
           console.error(error)
-          return "No forecast weather data"
+          return []
         }
       }
 
@@ -50,7 +50,7 @@ module.exports.getCombined = async (req, res) => {
         return responseGeocode.hits[0];
         } catch (error) {
           console.error(error);
-          return "No geocode data"
+          return []
         }
       }
 
@@ -81,7 +81,7 @@ module.exports.getCombined = async (req, res) => {
           //console.error(error)
           results = [];
         }
-        return results.length ? results : "No Point of Interests to visit";
+        return results.length ? results : [];
       }
 
       async function getDataFromBikeEndpoint(city) {
@@ -93,7 +93,7 @@ module.exports.getCombined = async (req, res) => {
         return responseBody.message;
         } catch (error) {
           //console.error(error)
-          return "No bike sharing data";
+          return [];
         }
       }
 
@@ -117,12 +117,12 @@ module.exports.getCombined = async (req, res) => {
           if (interests != undefined) {
             poiResponse = await getDataFromPOIEndpoint(city);
           }
-  
+
           if (weatheFlag === "true") {
             currentWeatherResponse = await getCurrentDataFromWeatherEndpoint(city);
             forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint(city);
           }
-    
+
           if (bikeFlag === "true")
             bikeResponse = await getDataFromBikeEndpoint(city);
         }
