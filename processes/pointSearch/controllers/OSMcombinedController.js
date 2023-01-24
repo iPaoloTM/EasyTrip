@@ -81,7 +81,7 @@ module.exports.getCombined = async (req, res) => {
           //console.error(error)
           results = [];
         }
-        return results.length ? results : [];
+        return results;
       }
 
       async function getDataFromBikeEndpoint(city) {
