@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const model = require('../models/users');
-const User = mongoose.model('User',model);
+const User = (mongoose.models && mongoose.models.User) ? mongoose.models.User : mongoose.model('User',model);
 const tokenGenerator = require('../utils/tokenGenerator');
 
 let MSG = {

@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const model = require('../models/users');
-const User = mongoose.model('User',model);
+const User = (mongoose.models && mongoose.models.User) ? mongoose.models.User : mongoose.model('User',model);
 
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
