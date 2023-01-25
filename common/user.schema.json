@@ -3,7 +3,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "description": "Base structure of a user",
     "type": "object",
-    "required": ["googleAccount", "email"],
+    "required": ["username","psw"],
     "properties": {
         "username": {
             "type": "string",
@@ -20,6 +20,13 @@
         "googleaccount": {
             "type": "boolean",
             "default": false
-        }    
+        },
+        "history": {
+            "type": "array",
+            "description": "Trips research history",
+            "items": {
+                "type": "object"
+            }
+        }
     }
 }

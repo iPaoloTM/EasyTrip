@@ -1,5 +1,9 @@
 'use strict';
 
+const mongoose = require('mongoose');
+const model = require('../models/users');
+const User = mongoose.model('User',model);
+
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
     serverError: "Server error", //Error code: 500
