@@ -27,15 +27,8 @@ const PLACES = ["city","town","village","hamlet"];
 
 const PROFILES = {
     car: "Car",
-    car_avoid_motorway: "Car - Avoid motorway",
-    car_avoid_toll: "Car - Avoid toll",
-    small_truck: "Camper",
-    scooter: "Scooter",
     foot: "Foot",
-    hike: "Hike",
     bike: "Bike",
-    mtb: "Mountain bike",
-    racingbike: "Racing bike"
 }
 
 module.exports = { SERVER_BASE_URL,AUTH_PORT,OSM_PORT,POINT_PORT,PATH_PORT,FACADE_PORT,OSM_TOOLS_URL,POINT_SEARCH_URL,PATH_SEARCH_URL,AMENITIES,TOURISM,INTERESTS,PLACES,PROFILES }

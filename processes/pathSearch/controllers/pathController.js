@@ -141,7 +141,6 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                 //Find at most limit intermediary points at least minDistance apart
                 right = false;
                 while (limit >= 0 && !right) {
-                    console.log(limit);
                     stops.intermediates = [];
                     subPathLen = Math.round(path.points.coordinates.length/(limit+1));
                     for (i = subPathLen; i < subPathLen*(limit+1); i += subPathLen) {
@@ -203,8 +202,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                                     currentMiddlePoint.nPois++;
                                 }
                             } else {
-                                if ((poisDescriptions && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length)
-                                        || (!poisDescriptions && currentMiddlePoint.nPois > maxMiddlePoint.nPois)) {
+                                if (isBigger(currentMiddlePoint,maxMiddlePoint,poisDescriptions)) {
                                     maxMiddlePoint.details = currentMiddlePoint.details;
                                     maxMiddlePoint.pois = currentMiddlePoint.pois;
                                 }
@@ -212,7 +210,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                                 currentMiddlePoint.pois = [poi];
                             }
                         }
-                        if (currentMiddlePoint.details != maxMiddlePoint.details && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length) {
+                        if (currentMiddlePoint.details != maxMiddlePoint.details && isBigger(currentMiddlePoint,maxMiddlePoint,poisDescriptions)) {
                             maxMiddlePoint.details = currentMiddlePoint.details;
                             maxMiddlePoint.pois = currentMiddlePoint.pois;
                         }
@@ -227,6 +225,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                     .then(response => JSON.parse(response))).hits[0];
                 }
             } catch (error) {
+                //console.log(error);
                 stops = null;
             }
         }
@@ -261,7 +260,8 @@ async function getRoute(stops,profile = "car") {
     
     //Check parameters
     try {
-        if (PROFILES[profile] != undefined) {
+        if (stops != null &&
+            PROFILES[profile] != undefined) {
             tmpIntermediates = stops.intermediates.map(point => point.details);
             points = [stops.start,...tmpIntermediates,stops.end];
         } else {
@@ -298,7 +298,7 @@ async function getRoute(stops,profile = "car") {
                 path.descend += tmpPath.descend;
                 path.snapped_waypoints.coordinates.push(tmpPath.points.coordinates[tmpPath.points.coordinates.length-1]);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
                 path = null;
             }
             i++;
@@ -311,6 +311,11 @@ async function getRoute(stops,profile = "car") {
     return {
         paths: path != null ? [path] : null
     };
+}
+
+function isBigger(currentMiddlePoint,maxMiddlePoint,poisDescriptions) {
+    return (poisDescriptions && currentMiddlePoint.pois.length > maxMiddlePoint.pois.length)
+    || (!poisDescriptions && currentMiddlePoint.nPois > maxMiddlePoint.nPois);
 }
 
 function prepareInstructions(instructions,startInterval = 0,waypoint = 0) {
