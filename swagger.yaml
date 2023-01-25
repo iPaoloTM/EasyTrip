@@ -16,8 +16,8 @@ paths:
   '/api/v1/weather/current':
     get:
       summary: Get current weather given a certain place
-      tags:
-        - Current Weather
+#      tags:
+#        - Point search
       parameters:
         - name: city
           in: query
@@ -32,43 +32,45 @@ paths:
           content:
             application/json:
               schema:
-#                  $ref: '#/components/schemas/currentWeather'
-          schema:
-            type: object
-            properties:
-              success:
-                schema:
-                  type: boolean
-                  description: Success of request
-              text:
-                schema:
-                  type: string
-                  description: description of the current weather status in natural language
-              message:
-                schema:
-                  type: string
-                  description: current weather statusDocumenti
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success of request
+                  text:
+                    type: string
+                    description: description of the current weather status in natural language
+                  message:
+                    type: string
+                    description: current weather statusDocumenti
   '/api/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
-      tags:
-        - Weather forecast
+#      tags:
+#        - Point search
       parameters:
-        - name: city
-          in: query
-          required: true
-          type: string
+        - $ref: '#/components/parameters/city'
       description: Get weather forecasts up to 16 days given a certain place
       responses:
         '200':
           description: Success
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-              text:
-                type: string
-              message:
-                type: array
-components: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  text:
+                    type: string
+                  message:
+                    type: array
+
+components:
+  parameters:
+    city:
+      name: city
+      in: query
+      schema:
+        type: string
+      required: true
