@@ -81,7 +81,8 @@ module.exports.signup_users = async (req, res) => {
     const newUser = await User.create({
 		username: req.body.username, 
 		email: req.body.email, 
-		psw: pswHash
+		psw: pswHash,
+		history: []
 	});
 	
 	let token = tokenGenerator(newUser);
@@ -121,7 +122,8 @@ module.exports.google = (req, res) => {
 					const newUserGoogle = await User.create({
 						username: userGoogle.name, 
 						email: userGoogle.email, 
-						googleaccount: true
+						googleaccount: true,
+						history: []
 					});
 					newUserGoogle.save(function(err, user) {
 						if (err) {
