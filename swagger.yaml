@@ -10,14 +10,45 @@ info:
     name: JSONPlaceholder
     url: https://jsonplaceholder.typicode.com
 servers:
+  - url: http://localhost:12349
+    description: EasyTrip server
+  - url: http://localhost:12348
+    description: Path Search server
+  - url: http://localhost:12347
+    description: Point Search server
+  - url: http://localhost:12346
+    description: OSM Tools server
   - url: http://localhost:12345
-    description: Development server
+    description: Auth server
+  
 paths:
-  '/api/v1/weather/current':
+  '/v1/routing/geocode':
+    get:
+      summary: Get coordinates and various informations of a given address
+      description: Get coordinates and various informations of a given address
+      tags:
+        - OSM Tools
+      parameters:
+        - $ref: '#/components/parameters/address'
+          description: Address to do geocode
+        - $ref: '#/components/parameters/limit'
+          description: Max number of geocode results
+      responses:
+        '200':
+          description: Geocode results retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/geocode'
+                description: Geocode results object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        
+  '/v1/weather/current':
     get:
       summary: Get current weather given a certain place
-#      tags:
-#        - Point search
+      tags:
+        - Point Search
       parameters:
         - name: city
           in: query
@@ -46,8 +77,8 @@ paths:
   '/api/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
-#      tags:
-#        - Point search
+      tags:
+        - Point Search
       parameters:
         - $ref: '#/components/parameters/city'
       description: Get weather forecasts up to 16 days given a certain place
@@ -74,3 +105,69 @@ components:
       schema:
         type: string
       required: true
+    address:
+      name: address
+      in: query
+      schema:
+        type: string
+      required: true
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+  schemas:
+    geocode:
+      type: object
+      properties:
+        hits:
+          type: array
+          items:
+            type: object
+            description: Geocode result
+            properties:
+              point:
+                type: object
+                description: Coordinates
+                properties:
+                  lat:
+                    type: number
+                    description: Latitude
+                  lng:
+                    type: number
+                    description: Longitude
+              osm_id:
+                type: string
+                description: The OSM ID of the entity
+              osm_type:
+                type: string
+                description: N = node, R = relation, W = way
+              osm_key:
+                type: string
+                description: The OSM key of the entity
+              name:
+                type: string
+                description: The name of the entity. Can be a boundary, POI, address, etc
+              country:
+                type: string
+                description: The country of the address
+              city:
+                type: string
+                description: The city of the address
+              state:
+                type: string
+                description: The state of the address
+              street:
+                type: string
+                description: The street of the address
+              housenumber:
+                type: string
+                description: The housenumber of the address
+              postcode:
+                type: string
+                description: The postcode of the address
+  responses:
+    BadRequest:
+      description: Bad request
+    ServerError:
+      description: Server error
