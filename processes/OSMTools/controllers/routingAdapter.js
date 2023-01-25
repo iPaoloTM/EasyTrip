@@ -5,7 +5,7 @@ const { PROFILES } = require("../../../common/dataStructures");
 
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
-    serverError: "Server error", //Errorr code: 500
+    serverError: "Server error", //Error code: 500
 }
 
 module.exports.geocode = async (req, res) => {
