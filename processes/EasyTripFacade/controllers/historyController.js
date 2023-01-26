@@ -34,15 +34,15 @@ module.exports.getTrips = async (req, res) => {
     let tmpN,offset,limit,historyLength,history;
     User.findById(req.loggedUser.user_id,{_id: 0, history: 1},(err,docs) => {
         if (err) {
-            res.status(400).json({
-                error: MSG.badRequest
-            }); 
+            //console.log(err);
+            res.status(500).json({
+                error: MSG.serverError
+            });
         } else {
             historyLength = docs.history.length;
             offset = (strOffset != undefined && !isNaN(tmpN = parseInt(strOffset)) && tmpN >= 0 && tmpN < historyLength) ? tmpN : 0;
             limit = (strLimit != undefined && !isNaN(tmpN = parseInt(strLimit)) && tmpN > 0 && (offset + tmpN) <= historyLength) ? tmpN : historyLength-offset;
             if (offset != 0 || limit != historyLength) {
-                console.log("Ciao");
                 history = docs.history.slice(offset,offset+limit);
             } else {
                 history = docs.history;
@@ -60,8 +60,21 @@ module.exports.deleteTrip = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
+
+    const id = req.params.id;
     
-    res.status(200).json({
-        user: req.loggedUser
+    User.findByIdAndUpdate(req.loggedUser.user_id,{
+        $pull: {
+            history: {id: id},
+        }
+    },(err,doc) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({
+                error: MSG.serverError
+            });
+        } else {
+            res.sendStatus(200);
+        }
     });
 }
