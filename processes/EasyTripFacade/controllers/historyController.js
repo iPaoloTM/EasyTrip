@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const model = require('../models/users');
 const User = (mongoose.models && mongoose.models.User) ? mongoose.models.User : mongoose.model('User',model);
 
+const { INTERESTS, PROFILES, POINT_SEARCH_URL, PATH_SEARCH_URL } = require('../../../common/dataStructures');
+const { cleanWrtStruct, arrayToStr } = require('../../../common/functions');
+
 let MSG = {
     badRequest: "Bad Request", //Error code: 400
     serverError: "Server error", //Error code: 500
@@ -18,16 +21,16 @@ module.exports.saveTrip = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    const obj = JSON.parse(req.body);
-    const urlString = obj.url;
+        const obj = JSON.parse(req.body);
+        const urlString = obj.url;
 
-    User.findById(req.loggedUser.user_id, (err, user) => {
-        if (err) {
-            //console.log(err);
-            res.status(500).json({
-                error: MSG.serverError
-            });
-        } else {
+        User.findById(req.loggedUser.user_id, (err, user) => {
+          if (err) {
+              //console.log(err);
+              res.status(500).json({
+                  error: MSG.serverError
+              });
+          } else {
 
             const parsedUrl = url.parse(urlString);
 
@@ -37,11 +40,28 @@ module.exports.saveTrip = async (req, res) => {
 
             const params = new URLSearchParams(parsedUrl.search);
 
-            const date = new Date().toISOString()
+            const isSafe = true;
+
+            if (type == 'travel') {
+
+              if (params.weather != "true" || params.weather != "false" || params.bikes != "true" || params.bikes != "false" || interests = cleanWrtStruct(interests,INTERESTS)).length == 0) {
+                isSafe = false;
+              }
+
+            } else if (type == 'destination') {
+              if (params.weather != "true" || params.weather != "false" || params.bikes != "true" || params.bikes != "false" || interests = cleanWrtStruct(interests,INTERESTS)).length == 0 || params.limit < 0 || params.limit > 8 || typeof params.minDistance != "number" || typeof params.maxDetour != "number") {
+                isSafe = false;
+              }
+            }
+
+            if (isSafe) {
+
+            const date = new Date().toISOString();
 
             const id = uuid.v4();
 
             const historyObject = JSON.stringify(Object.fromEntries('{"id":"'+id+'", "dateTime": "'+date+'", "type": "'+type+'", "parameters": "'+params+'", "url": "'+url+'"}'));
+            console.log(historyObject);
 
             user.history.push(historyObject);
             user.save((err, updatedUser) => {
@@ -50,9 +70,14 @@ module.exports.saveTrip = async (req, res) => {
                 } else {
                     res.status(200).json(updatedUser);
                 }
-            });
+            }); } else {
+              res.status(500).json({
+                  error: MSG.serverError
+              });
+            }
         }
     });
+
 }
 
 module.exports.getTrips = async (req, res) => {
