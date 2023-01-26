@@ -31,7 +31,8 @@ module.exports.getTrips = async (req, res) => {
     const strLimit = req.query.limit;
     const strOffset = req.query.offset;
 
-    let tmpN,offset,limit,historyLength,history;
+    let history = {};
+    let mergedHistory;
     User.findById(req.loggedUser.user_id,{_id: 0, history: 1},(err,docs) => {
         if (err) {
             //console.log(err);
@@ -39,13 +40,21 @@ module.exports.getTrips = async (req, res) => {
                 error: MSG.serverError
             });
         } else {
-            historyLength = docs.history.length;
-            offset = (strOffset != undefined && !isNaN(tmpN = parseInt(strOffset)) && tmpN >= 0 && tmpN < historyLength) ? tmpN : 0;
-            limit = (strLimit != undefined && !isNaN(tmpN = parseInt(strLimit)) && tmpN > 0 && (offset + tmpN) <= historyLength) ? tmpN : historyLength-offset;
-            if (offset != 0 || limit != historyLength) {
-                history = docs.history.slice(offset,offset+limit);
-            } else {
-                history = docs.history;
+            mergedHistory = docs.history;
+            mergedHistory.sort((a,b) => {
+                let dateA = new Date(a.dateTime);
+                let dateB = new Date(b.dateTime);
+                return dateA < dateB ? 1 : (dateA > dateB ? -1 : 0);
+            });
+            for (const trip of mergedHistory) {
+                if (history[trip.type] == undefined) {
+                    history[trip.type] = [trip];
+                } else {
+                    history[trip.type].push(trip);
+                }
+            }
+            for (const type of Object.keys(history)) {
+                history[type] = cut(history[type],strOffset,strLimit);
             }
             res.status(200).json({
                 history: history
@@ -77,4 +86,17 @@ module.exports.deleteTrip = async (req, res) => {
             res.sendStatus(200);
         }
     });
+}
+
+function cut(array,strOffset,strLimit) {
+    
+    let tmpN;
+    let arrayLength = array.length;
+    let offset = (strOffset != undefined && !isNaN(tmpN = parseInt(strOffset)) && tmpN >= 0 && tmpN < arrayLength) ? tmpN : 0;
+    let limit = (strLimit != undefined && !isNaN(tmpN = parseInt(strLimit)) && tmpN > 0 && (offset + tmpN) <= arrayLength) ? tmpN : arrayLength-offset;
+    if (offset != 0 || limit != arrayLength) {
+        array = array.slice(offset,offset+limit);
+    }
+
+    return array;
 }
