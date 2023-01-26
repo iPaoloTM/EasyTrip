@@ -27,9 +27,30 @@ module.exports.getTrips = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
-    
-    res.status(200).json({
-        user: req.loggedUser
+
+    const strLimit = req.query.limit;
+    const strOffset = req.query.offset;
+
+    let tmpN,offset,limit,historyLength,history;
+    User.findById(req.loggedUser.user_id,{_id: 0, history: 1},(err,docs) => {
+        if (err) {
+            res.status(400).json({
+                error: MSG.badRequest
+            }); 
+        } else {
+            historyLength = docs.history.length;
+            offset = (strOffset != undefined && !isNaN(tmpN = parseInt(strOffset)) && tmpN >= 0 && tmpN < historyLength) ? tmpN : 0;
+            limit = (strLimit != undefined && !isNaN(tmpN = parseInt(strLimit)) && tmpN > 0 && (offset + tmpN) <= historyLength) ? tmpN : historyLength-offset;
+            if (offset != 0 || limit != historyLength) {
+                console.log("Ciao");
+                history = docs.history.slice(offset,offset+limit);
+            } else {
+                history = docs.history;
+            }
+            res.status(200).json({
+                history: history
+            });
+        }
     });
 }
 
