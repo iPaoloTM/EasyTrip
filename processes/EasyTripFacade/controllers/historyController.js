@@ -18,16 +18,16 @@ module.exports.saveTrip = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-        const obj = JSON.parse(req.body);
-        const urlString = obj.url;
+    const obj = JSON.parse(req.body);
+    const urlString = obj.url;
 
-        User.findById(req.loggedUser.user_id, (err, user) => {
-          if (err) {
-              //console.log(err);
-              res.status(500).json({
-                  error: MSG.serverError
-              });
-          } else {
+    User.findById(req.loggedUser.user_id, (err, user) => {
+        if (err) {
+            //console.log(err);
+            res.status(500).json({
+                error: MSG.serverError
+            });
+        } else {
 
             const parsedUrl = url.parse(urlString);
 
@@ -37,12 +37,11 @@ module.exports.saveTrip = async (req, res) => {
 
             const params = new URLSearchParams(parsedUrl.search);
 
-            const date = new Date()).toISOString()
+            const date = new Date().toISOString()
 
             const id = uuid.v4();
 
             const historyObject = JSON.stringify(Object.fromEntries('{"id":"'+id+'", "dateTime": "'+date+'", "type": "'+type+'", "parameters": "'+params+'", "url": "'+url+'"}'));
-            console.log(historyObject);
 
             user.history.push(historyObject);
             user.save((err, updatedUser) => {
@@ -54,7 +53,6 @@ module.exports.saveTrip = async (req, res) => {
             });
         }
     });
-
 }
 
 module.exports.getTrips = async (req, res) => {
