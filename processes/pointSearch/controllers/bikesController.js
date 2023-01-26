@@ -25,7 +25,7 @@ module.exports.getBikeNetworks = async (req, res) => {
 
       res.status(404).json({
           success: false,
-          message: []
+          message: "empty"
       });
 
     } else {

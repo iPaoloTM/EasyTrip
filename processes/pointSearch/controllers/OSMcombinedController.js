@@ -93,7 +93,7 @@ module.exports.getCombined = async (req, res) => {
         return responseBody.message;
         } catch (error) {
           //console.error(error)
-          return [];
+          return "empty";
         }
       }
 
