@@ -1,5 +1,7 @@
 'use strict';
 
+const uuid = require('uuid');
+const url = require('url');
 const mongoose = require('mongoose');
 const model = require('../models/users');
 const User = (mongoose.models && mongoose.models.User) ? mongoose.models.User : mongoose.model('User',model);
@@ -16,9 +18,43 @@ module.exports.saveTrip = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    res.status(200).json({
-        user: req.loggedUser
+        const obj = JSON.parse(req.body);
+        const urlString = obj.url;
+
+        User.findById(req.loggedUser.user_id, (err, user) => {
+          if (err) {
+              //console.log(err);
+              res.status(500).json({
+                  error: MSG.serverError
+              });
+          } else {
+
+            const parsedUrl = url.parse(urlString);
+
+            const pathname = parsedUrl.pathname;
+
+            const type = pathname.split('/')[3];
+
+            const params = new URLSearchParams(parsedUrl.search);
+
+            const date = new Date()).toISOString()
+
+            const id = uuid.v4();
+
+            const historyObject = JSON.stringify(Object.fromEntries('{"id":"'+id+'", "dateTime": "'+date+'", "type": "'+type+'", "parameters": "'+params+'", "url": "'+url+'"}'));
+            console.log(historyObject);
+
+            user.history.push(historyObject);
+            user.save((err, updatedUser) => {
+                if(err) {
+                    res.status(500).send(err);
+                } else {
+                    res.status(200).json(updatedUser);
+                }
+            });
+        }
     });
+
 }
 
 module.exports.getTrips = async (req, res) => {
@@ -71,7 +107,7 @@ module.exports.deleteTrip = async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
     const id = req.params.id;
-    
+
     User.findByIdAndUpdate(req.loggedUser.user_id,{
         $pull: {
             history: {id: id},
@@ -89,7 +125,7 @@ module.exports.deleteTrip = async (req, res) => {
 }
 
 function cut(array,strOffset,strLimit) {
-    
+
     let tmpN;
     let arrayLength = array.length;
     let offset = (strOffset != undefined && !isNaN(tmpN = parseInt(strOffset)) && tmpN >= 0 && tmpN < arrayLength) ? tmpN : 0;

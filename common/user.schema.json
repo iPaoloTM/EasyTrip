@@ -11,7 +11,7 @@
         },
         "psw": {
             "type": "string",
-            "description": "Password of the user"        
+            "description": "Password of the user"
         },
         "email": {
             "type": "string",
@@ -30,7 +30,7 @@
                 "properties": {
                     "id": {
                         "type": "string",
-                        "description": "Tirp research id"
+                        "description": "Trip research id"
                     },
                     "dateTime": {
                         "type": "string",
