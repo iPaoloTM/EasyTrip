@@ -93,7 +93,7 @@ function getCommonQueryParams(query) {
     }
 }
 
-async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "20000",maxDetourStr = "10000",profile = "car", poisDescriptions = true) {
+async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "20000",maxDetourStr,profile = "car", poisDescriptions = true) {
 
     let stops = {
         start: {},
@@ -110,8 +110,14 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
             && PROFILES[profile] != undefined) {
         if (limit > 0) {
             right = (interests = cleanWrtStruct(interests,INTERESTS)).length
-            && !isNaN(minDistance = parseFloat(minDistanceStr))
-            && !isNaN(maxDetour = parseFloat(maxDetourStr)) && maxDetour <= (minDistance/2);
+            && !isNaN(minDistance = parseFloat(minDistanceStr)) && minDistance >= 0;
+            if (right) {
+                if (maxDetourStr != undefined) {
+                    right = !isNaN(maxDetour = parseFloat(maxDetourStr)) && maxDetour >= 0 && maxDetour <= (minDistance/2);
+                } else {
+                    maxDetour = minDistance/2;
+                }
+            }
         }
         //Retrieve start and end coordinates and informations
         if (right) {

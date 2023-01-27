@@ -16,7 +16,7 @@ module.exports.destination = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    const interests= Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];
+    const interests = Array.isArray(req.query.interest) ? req.query.interest : [req.query.interest];
 
     try {
       const response = await request(POINT_SEARCH_URL + '/v2/combined/about?address='+req.query.address+'&weather='+req.query.weather+'&bikes='+req.query.bikes+arrayToStr(interests,"&interest=",true));
@@ -70,11 +70,11 @@ module.exports.travel = async (req, res) => {
         if (toDo.stops) {
             minDistance = parseFloat(minDistanceStr);
             maxDetour = parseFloat(maxDetourStr);
-            if (isNaN(minDistance)) {
+            if (isNaN(minDistance) || minDistance < 0) {
                 minDistance = 20000;
             }
             detourAllwoed = minDistance/2;
-            if (isNaN(maxDetour) || maxDetour > detourAllwoed) {
+            if (isNaN(maxDetour) || maxDetour < 0 || maxDetour > detourAllwoed) {
                 maxDetour = detourAllwoed;
             }
             if (PROFILES[profile] == undefined) {
