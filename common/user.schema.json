@@ -28,14 +28,14 @@
                 "type": "object",
                 "required": ["id","dateTime","type","parameters","url"],
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "Trip research id"
-                    },
                     "dateTime": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Date-time of execution of the research (format: simplified extended ISO format - ISO 8601)"
+                    },
+                    "route": {
+                        "type": "string",
+                        "description": "Route reference of trip search (route + '/' + type = path to execute search)"
                     },
                     "type": {
                         "type": "string",
@@ -67,7 +67,7 @@
                                 "type": "boolean",
                                 "description": "Bike sharing requested or not"
                             },
-                            "interests": {
+                            "interest": {
                                 "type": "array",
                                 "description": "Interests for the trip",
                                 "items": {
@@ -88,10 +88,6 @@
                                 "description": "Maximum distance for a detour to an intermediate stop for /travel search"
                             }
                         }
-                    },
-                    "url": {
-                        "type": "string",
-                        "description": "Trip search url"
                     }
                 }
             }
