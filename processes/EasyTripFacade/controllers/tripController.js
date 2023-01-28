@@ -108,7 +108,6 @@ module.exports.travel = async (req, res) => {
                     paths: []
                 }
                 url = POINT_SEARCH_URL + "/v2/combined/about?"
-                    + "&address=" + end
                     + "&weather=" + (toDo.weather ? "true" : "false")
                     + "&bikes=" + (toDo.bikes ? "true" : "false")
                     + (toDo.poi ? arrayToStr(interests,"&interest=",true) : "");
@@ -116,7 +115,7 @@ module.exports.travel = async (req, res) => {
                     travel.intermediates[i] = {
                         address: pathSearchRes.stops.intermediates[i].details,
                     }
-                    pointSearchRes = await (request(url).then(response => JSON.parse(response)));
+                    pointSearchRes = await (request(url + "&address=" + travel.intermediates[i].address.name).then(response => JSON.parse(response)));
                     if (toDo.weather) {
                         travel.intermediates[i].weather = pointSearchRes.weather;
                     }
@@ -124,10 +123,10 @@ module.exports.travel = async (req, res) => {
                         travel.intermediates[i].bike = pointSearchRes.bike;
                     }
                     if (toDo.poi) {
-                        travel.intermediates[i].poi = pathSearchRes.stops.intermediates[i].pois;
+                        travel.intermediates[i].poi = pointSearchRes.poi;
                     }
                 }
-                travel.end = await (request(url)).then(response => JSON.parse(response));
+                travel.end = await (request(url + "&address=" + end)).then(response => JSON.parse(response));
                 travel.paths = (await request(PATH_SEARCH_URL + "/v1/path/route?profile=" + profile,{
                     method: "POST",
                     body: pathSearchRes,
