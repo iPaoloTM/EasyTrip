@@ -198,11 +198,11 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                         };
                         currentMiddlePoint = poisDescriptions ? {
                             details: pois[0].tags["addr:city"],
-                            referPoint: [pois[0].lat,pois[0].lon],
+                            referPoint: [pois[0].lat,pois[0].lon], //Implementare conversione way,relations -> node
                             pois: []
                         } : {
                             details: pois[0].tags["addr:city"],
-                            referPoint: [pois[0].lat,pois[0].lon],
+                            referPoint: [pois[0].lat,pois[0].lon], //Implementare conversione way,relations -> node
                             nPois: 0
                         };
                         for (const poi of pois) {
@@ -223,7 +223,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                                     }
                                 }
                                 currentMiddlePoint.details = poi.tags["addr:city"];
-                                currentMiddlePoint.referPoint = [poi.lat,poi.lon];
+                                currentMiddlePoint.referPoint = [poi.lat,poi.lon]; //Implementare conversione way,relations -> node
                                 if (poisDescriptions) {
                                     currentMiddlePoint.pois = [poi];
                                 } else {

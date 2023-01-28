@@ -43,8 +43,8 @@ module.exports.poi = async (req, res) => {
         amenitiesStr = dictFieldsToStr(interests,AMENITIES);
         tourismStr = dictFieldsToStr(interests,TOURISM);
         queryOverpass("[out:json];("
-                        + (amenitiesStr != "" ? "nwr(" + bboxStr + ")[\"addr:city\"][amenity~'^(" + amenitiesStr + ")$'];" : "")
-                        + (tourismStr != "" ? "nwr(" + bboxStr + ")[\"addr:city\"][tourism~'^(" + tourismStr + ")$'];" : "")
+                        + (amenitiesStr != "" ? "node(" + bboxStr + ")[\"addr:city\"][amenity~'^(" + amenitiesStr + ")$'];" : "") //nwr
+                        + (tourismStr != "" ? "node(" + bboxStr + ")[\"addr:city\"][tourism~'^(" + tourismStr + ")$'];" : "") //nwr
                         + ");out;")
             .then(response => {
                 try {

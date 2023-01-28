@@ -32,10 +32,10 @@ module.exports.geocode = async (req, res) => {
         details: undefined,
         dist: Number.MAX_SAFE_INTEGER
     };
-    let closestTo,currentDist;
+    let tmpPoint,closestTo,currentDist;
     if (address != undefined
             && (limit == undefined || !isNaN(limit))
-            && (closestToStr == undefined || (closestTo = pointArrayToObj(strToPoint(closestToStr))) != null)
+            && (closestToStr == undefined || (tmpPoint = strToPoint(closestToStr)) != null && tmpPoint.length == 2 && (closestTo = pointArrayToObj(tmpPoint)) != null)
             && (onlyPlacesStr == undefined || closestTo != undefined && (onlyPlaces = parseBoolean(onlyPlacesStr)) != null)) {
         fetch("https://graphhopper.com/api/1/geocode"
         + "?key=" + process.env.GRAPHHOPPER_KEY
