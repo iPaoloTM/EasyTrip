@@ -1,6 +1,6 @@
 'use strict';
 
-const { pointToStr,pointArrayToObj,cleanWrtStruct,arrayToStr,reversePointArray, pointObjCompleteNames } = require("../../../common/functions");
+const { pointToStr,pointArrayToObj,cleanWrtStruct,arrayToStr,reversePointArray, pointObjCompleteNames,parseBoolean } = require("../../../common/functions");
 const { OSM_TOOLS_URL,INTERESTS,PROFILES } = require("../../../common/dataStructures");
 
 const request = require('request-promise');
@@ -93,7 +93,7 @@ function getCommonQueryParams(query) {
     }
 }
 
-async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "20000",maxDetourStr,profile = "car", poisDescriptions = true) {
+async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "20000",maxDetourStr,profile = "car", poisDescriptionsStr = "true") {
 
     let stops = {
         start: {},
@@ -102,12 +102,13 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
     };
     let poiDirections = [0,-1,1];
     let right = true;
-    let i, j, limit, minDistance, maxDetour, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
+    let i, j, limit, minDistance, maxDetour, poisDescriptions, path, subPathLen, interestsStr, pois, poiTollerance, maxMiddlePoint, currentMiddlePoint;
     //Request check
     if (start != undefined
             && end != undefined
             && !isNaN(limit = parseInt(strLimit)) && limit >= 0 && limit <= 8
-            && PROFILES[profile] != undefined) {
+            && PROFILES[profile] != undefined
+            && (poisDescriptions = parseBoolean(poisDescriptionsStr)) != null) {
         if (limit > 0) {
             right = (interests = cleanWrtStruct(interests,INTERESTS)).length
             && !isNaN(minDistance = parseFloat(minDistanceStr)) && minDistance >= 0;
@@ -153,8 +154,8 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                         stops.intermediates.push(path.points.coordinates[i]);
                     }
                     if (limit > 0
-                        && geolib.getDistance(pointArrayToObj(stops.intermediates[0]),
-                            limit > 1 ? pointArrayToObj(stops.intermediates[1]) : pointObjCompleteNames(stops.end.point)) < minDistance) {
+                        && geolib.getDistance(pointArrayToObj(stops.intermediates[0],true),
+                            limit > 1 ? pointArrayToObj(stops.intermediates[1],true) : pointObjCompleteNames(stops.end.point)) < minDistance) {
                         limit--;
                     } else {
                         right = true;
@@ -188,18 +189,22 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                         });
                         maxMiddlePoint = poisDescriptions ? {
                             details: "",
-                            pois: []
+                            referPoint: null,
+                            pois: [],
                         } : {
                             details: "",
+                            referPoint: null,
                             nPois: 0
-                        }
+                        };
                         currentMiddlePoint = poisDescriptions ? {
                             details: pois[0].tags["addr:city"],
+                            referPoint: [pois[0].lat,pois[0].lon],
                             pois: []
                         } : {
                             details: pois[0].tags["addr:city"],
+                            referPoint: [pois[0].lat,pois[0].lon],
                             nPois: 0
-                        }
+                        };
                         for (const poi of pois) {
                             if (poi.tags["addr:city"] == currentMiddlePoint.details) {
                                 if (poisDescriptions) {
@@ -210,15 +215,30 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                             } else {
                                 if (isBigger(currentMiddlePoint,maxMiddlePoint,poisDescriptions)) {
                                     maxMiddlePoint.details = currentMiddlePoint.details;
-                                    maxMiddlePoint.pois = currentMiddlePoint.pois;
+                                    maxMiddlePoint.referPoint = currentMiddlePoint.referPoint;
+                                    if (poisDescriptions) {
+                                        maxMiddlePoint.pois = currentMiddlePoint.pois;
+                                    } else {
+                                        maxMiddlePoint.nPois = currentMiddlePoint.nPois;
+                                    }
                                 }
                                 currentMiddlePoint.details = poi.tags["addr:city"];
-                                currentMiddlePoint.pois = [poi];
+                                currentMiddlePoint.referPoint = [poi.lat,poi.lon];
+                                if (poisDescriptions) {
+                                    currentMiddlePoint.pois = [poi];
+                                } else {
+                                    currentMiddlePoint.nPois = 1;
+                                }
                             }
                         }
                         if (currentMiddlePoint.details != maxMiddlePoint.details && isBigger(currentMiddlePoint,maxMiddlePoint,poisDescriptions)) {
                             maxMiddlePoint.details = currentMiddlePoint.details;
-                            maxMiddlePoint.pois = currentMiddlePoint.pois;
+                            maxMiddlePoint.referPoint = currentMiddlePoint.referPoint;
+                            if (poisDescriptions) {
+                                maxMiddlePoint.pois = currentMiddlePoint.pois;
+                            } else {
+                                maxMiddlePoint.nPois = currentMiddlePoint.nPois;
+                            }
                         }
                         stops.intermediates[i] = maxMiddlePoint;
                     } else {
@@ -227,8 +247,9 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                 }
                 //Convert city name to a point
                 for (i = 0; i < stops.intermediates.length; i++) {
-                    stops.intermediates[i].details = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=1&address=" + stops.intermediates[i].details)
+                    stops.intermediates[i].details = (await request(OSM_TOOLS_URL + "/v1/routing/geocode?limit=5&onlyPlaces=true&address=" + stops.intermediates[i].details + "&closestTo=" + stops.intermediates[i].referPoint)
                     .then(response => JSON.parse(response))).hits[0];
+                    delete stops.intermediates[i].referPoint;
                 }
             } catch (error) {
                 //console.log(error);
