@@ -86,6 +86,11 @@
                             "maxDetour": {
                                 "type": "number",
                                 "description": "Maximum distance for a detour to an intermediate stop for /travel search"
+                            },
+                            "profile": {
+                                "type": "string",
+                                "description": "Veichle profile",
+                                "enum": ["car","bike","foot"]
                             }
                         }
                     }

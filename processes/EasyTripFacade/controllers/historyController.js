@@ -110,7 +110,7 @@ module.exports.saveTrip = async (req, res) => {
                         isSafe = false;
                         break;
                 }
-            }  
+            }
 
             if (isSafe && isCorrect(Object.keys(tripInfo.parameters),actualParams)) {
 
@@ -205,12 +205,12 @@ module.exports.deleteTrip = async (req, res) => {
         }
     },(err,doc) => {
         if (err) {
-            console.log(err);
+            //console.log(err);
             res.status(500).json({
                 error: MSG.serverError
             });
         } else {
-            res.sendStatus(200);
+            res.status(200).json({});
         }
     });
 }
