@@ -20,7 +20,7 @@ servers:
     description: OSM Tools server
   - url: http://localhost:12345
     description: Auth server
-  
+
 paths:
   '/v1/routing/geocode':
     get:
@@ -43,7 +43,7 @@ paths:
                 description: Geocode results object
         '400':
           $ref: '#/components/responses/BadRequest'
-        
+
   '/v1/weather/current':
     get:
       summary: Get current weather given a certain place
@@ -74,7 +74,7 @@ paths:
                   message:
                     type: string
                     description: current weather statusDocumenti
-  '/api/v1/weather/forecast':
+  '/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
       tags:
@@ -92,12 +92,33 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success of request
                   text:
                     type: string
+                    description: description of the weather forecasts for the next 16 days in natuaral language
                   message:
                     type: array
-
-components:
+                    description: array of weather forecasts of the next 16 days
+'/v1/bikes/networks':
+    get:
+      summary: Get data about bike sharing available in a certain place
+      tags:
+        - Point Search
+      parameters:
+        - $ref: '#/components/parameters/city'
+      description: Get data about bike sharing available in a certain place
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success of request
+                  
   parameters:
     city:
       name: city
