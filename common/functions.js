@@ -100,4 +100,19 @@ function reverseBbox(bbox) {
     return [bbox[1],bbox[0],bbox[3],bbox[2]];
 }
 
-module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,pointObjCompleteNames,reversePointArray,reverseBbox }
+function parseBoolean(strBool) {
+
+    let bool = null;
+    switch (strBool) {
+        case "true":
+            bool = true;
+            break;
+        case "false":
+            bool = false;
+            break;
+    }
+
+    return bool;
+}
+
+module.exports = { fetch,cleanWrtStruct,checkStrFloatArray,strToPoint,strToBbox,pointToStr,arrayToStr,pointArrayToObj,pointObjToArray,pointObjCompleteNames,reversePointArray,reverseBbox,parseBoolean }
