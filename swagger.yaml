@@ -20,7 +20,7 @@ servers:
     description: OSM Tools server
   - url: http://localhost:12345
     description: Auth server
-
+  
 paths:
   '/v1/routing/geocode':
     get:
@@ -43,7 +43,7 @@ paths:
                 description: Geocode results object
         '400':
           $ref: '#/components/responses/BadRequest'
-
+        
   '/v1/weather/current':
     get:
       summary: Get current weather given a certain place
@@ -84,7 +84,7 @@ paths:
       description: Get weather forecasts up to 16 days given a certain place
       responses:
         '200':
-          description: Success
+          description: Success 
           content:
             application/json:
               schema:
@@ -99,7 +99,7 @@ paths:
                   message:
                     type: array
                     description: array of weather forecasts of the next 16 days
-'/v1/bikes/networks':
+  '/v1/bikes/networks':
     get:
       summary: Get data about bike sharing available in a certain place
       tags:
@@ -118,7 +118,54 @@ paths:
                   success:
                     type: boolean
                     description: Success of request
-                  
+                  message:
+                    type: object
+                    properties:
+                      company:
+                        type: string
+                        description: The company providing the bike sharing service
+                      gbfs_href:
+                        type: string
+                        description: Website url of the bike sharing service
+                      href:
+                        type: string
+                        description: resource URI on bike sharing API Website
+                      id:
+                        type: string
+                        description: bike sharing identifier
+                      location:
+                        type: object
+                        properties:
+                          city:
+                            type: string
+                            description: City where the bike sharing service is available
+                          country:
+                            type: string
+                            description: Country where the city is located
+                          latitude:
+                            type: number
+                            description: latitute coordinate value
+                          longitude:
+                            type: number
+                            description: longitude coordinate value
+                      name:
+                        type: string
+                        description: name of the bike sharing service              
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success of the Request 
+                  message:
+                    type: stringke
+                    description: Empty message               
+
+components:
   parameters:
     city:
       name: city
