@@ -28,11 +28,14 @@ paths:
       description: Authentication of an used based on the username and password and get a token
       tags:
         - Auth Tools
-      parameters:
-        - $ref: '#/components/parameters/username'
-          description: Username of the user
-        - $ref: '#/components/parameters/password'
-          description: Password of the user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              - $ref: '#/components/parameters/username'
+                description: Username of the user
+              - $ref: '#/components/parameters/password'
+                description: Password of the user
       responses:
         '200':
           description: Token sucessfully created
@@ -219,19 +222,20 @@ components:
   parameters:
     username:
       name: username
-      in: body
       schema:
         type: string
+      required: true
     email:
       name: email
-      in: body
       schema:
         type: string
+      required: true
     password:
       name: password
       in: body
       schema:
         type: string
+      required: true
     city:
       name: city
       in: query
