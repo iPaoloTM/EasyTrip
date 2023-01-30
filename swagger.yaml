@@ -53,6 +53,23 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
+'/v1/users/auth/google':
+    post:
+      summary: Authentication of an user via google and get a token
+      description: Authentication of an user based on the google account and get a token. The user is redirected to the Google Page
+      tags:
+        - Auth Tools
+      responses:
+        '200':
+          description: Token sucessfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+                description: User results object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   '/v1/users/signup':
     post:
       summary: Create new user and get a new token
