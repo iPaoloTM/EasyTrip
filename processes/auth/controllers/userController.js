@@ -41,12 +41,10 @@ module.exports.login_users = async (req, res) => {
 		let token = tokenGenerator(user);
 		
 		res.status(200).json({
-			success: true,
-			message: 'Token sucessfully created',
-			token: token,
-			username: user.username,
-			id: user._id,
-			self: "/api/v1/users/" + user._id,
+			user:{
+				token: token,
+				username: user.username,
+			}
 		});
 		return;
 	}
@@ -88,12 +86,10 @@ module.exports.signup_users = async (req, res) => {
 	let token = tokenGenerator(newUser);
 	
 	res.status(201).json({
-		success: true,
-		message: 'Signup completed!',
-		token: token,
-		username: newUser.username,
-		id: newUser._id,
-		self: "/api/v1/users/" + newUser._id
+		user:{
+			token: token,
+			username: newUser.username,
+		}
 	});
 
 };
