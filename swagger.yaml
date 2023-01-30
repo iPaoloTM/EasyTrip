@@ -53,7 +53,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-'/v1/users/auth/google':
+  '/v1/users/auth/google':
     post:
       summary: Authentication of an user via google and get a token
       description: Authentication of an user based on the google account and get a token. The user is redirected to the Google Page
