@@ -253,7 +253,56 @@ paths:
                     description: Success of the Request 
                   message:
                     type: stringke
-                    description: Empty message               
+                    description: Empty message
+
+  '/v1/history':
+    get:
+      summary: Get the history of the research of a user
+      description: Return the history of the research of a user (both destination and travel search)
+      tags:
+        - History Tools
+      parameters:
+        - $ref: '#/components/parameters/token'
+          description: token of the user
+      responses:
+        '200':
+          description: History of the user retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/history'
+                description: History results object
+        '401':
+          $ref: '#/components/responses/NoToken'
+        '403':
+          $ref: '#/components/responses/InvalidToken'
+        '500':
+          $ref: '#/components/responses/ServerError'                    
+  
+  '/v1/history/{id}':
+    delete:
+      summary: Delete a research saved in the history
+      description: Delete a research in the history for the user identified by the token and based on the id given
+      tags:
+        - History Tools
+      parameters:
+        - $ref: '#/components/parameters/token'
+          description: token of the user
+        - name: id
+          in: path
+          required: true
+          description: The id of the search to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search deleted
+        '401':
+          $ref: '#/components/responses/NoToken'
+        '403':
+          $ref: '#/components/responses/InvalidToken'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   parameters:
@@ -274,6 +323,13 @@ components:
       in: query
       schema:
         type: integer
+    token:
+      name: x-access-token
+      in: header
+      required: true
+      description:  the jwt of the session
+      schema:
+      type: string
   schemas:
     user:   
       type: object
@@ -283,7 +339,97 @@ components:
           description: username of the user
         token: 
           type: string
-          description: token of the user    
+          description: token of the user 
+    history:
+      type: object
+      properties:
+        travel:
+          type: array
+          items:
+            type: object
+            description: Travel search result 
+            properties:
+              dateTime:
+                type: string
+                description: date of when the search was made
+              parameters:
+                type: object
+                description: parameters of the search
+                properties:
+                  _id:
+                    type: string
+                    description: id of the search saved
+                  url:
+                    type: string
+                    description: url associated with the request
+                  start:
+                    type: string
+                    description: start point of the travel
+                  end:
+                    type: string
+                    description: end point of the travel
+                  interest:
+                    type: array
+                    items:
+                      type: string
+                      description: interest of the search for the point of interests
+                  bike:
+                    type: boolean
+                    description: describe if in the request user wants bike sharing
+                  weather:
+                    type: boolean
+                    description: describe if in the request user wants weather forecasts
+                  limit:
+                    type: number
+                    description: maximum number of intermediate cities
+                  minDistance:
+                    type: number
+                    description: Minimum distance between two intermediate cities
+                  maxDetour:
+                    type: number
+                    description: max detour to find intermediate cities
+                  profile:
+                    type: string
+                    description: describe the type of travel
+                  route:
+                    type: string
+                    description: define the endpoint used
+        destination:
+          type: array
+          items:
+            type: object
+            description: Destination search result 
+            properties:
+              dateTime:
+                type: string
+                description: date of when the search was made
+              parameters:
+                type: object
+                description: parameters of the search
+                properties:
+                  _id:
+                    type: string
+                    description: id of the search saved
+                  url:
+                    type: string
+                    description: url associated with the request
+                  address:
+                    type: string
+                    description: address of the destination
+                  interest:
+                    type: array
+                    items:
+                      type: string
+                      description: interest of the search for the point of interests
+                  bike:
+                    type: boolean
+                    description: describe if in the request user wants bike sharing
+                  weather:
+                    type: boolean
+                    description: describe if in the request user wants weather forecasts
+                  route:
+                    type: string
+                    description: define the endpoint used
     geocode:
       type: object
       properties:
@@ -334,6 +480,10 @@ components:
                 type: string
                 description: The postcode of the address
   responses:
+    NoToken:
+      description: No token provided
+    InvalidToken:
+      description: Invalid token provided
     BadRequest:
       description: Bad request
     ExistingUser:
