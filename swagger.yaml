@@ -252,9 +252,134 @@ paths:
                     type: boolean
                     description: Success of the Request 
                   message:
-                    type: stringke
+                    type: string
                     description: Empty message
-
+#interest=sustenance&interest=tourism
+  '/v2/combined/about':
+    get:
+      summary: Get information about weather, bike sharing and points of interest in a certain location based on some choices
+      description: Return the information about weather, bike sharing and points of interest in a certain location (can choose if all three fields will be returned or if some of them) based on some interests
+      tags:
+        - Point Search
+      parameters:
+        $ref: '#/components/parameters/address'
+        weather:
+          type: boolean
+          description: Flag to return or not weather information
+        bikes:
+          type: boolean
+          description: Flag to return or not bike sharing information
+        interest:
+          type: array
+          description: Array of interest on which to filter points of interest
+      responses:
+        '200':
+          description: Return object about requested information and points of interest
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: object
+                    properties:
+                      point:
+                        type: object
+                        properties:
+                          lat:
+                            type: string
+                            description: latitude of the searched location
+                          lng:
+                            type: string
+                            description: longitude of the searched location
+                      extent:
+                        type: array
+                        description: bounding box of the searched location
+                      name:
+                        type: string
+                        description: The name of the entity. Can be a boundary, POI, address, etc
+                      country:
+                        type: string
+                        description: The country of the address
+                      city:
+                        type: string
+                        description: The city of the address
+                      countrycode:
+                        type: string
+                        description: The state of the address
+                      state:
+                        type: string
+                        description: The state of the address
+                      postcode:
+                        type: string
+                        description: The postcode of the address
+                      osm_id:
+                        type: string
+                        description: The OSM ID of the entity
+                      osm_type:
+                        type: string
+                        description: N = node, R = relation, W = way
+                      osm_key:
+                        type: string
+                        description: The OSM key of the entity
+                      osm_key:
+                        type: string
+                        description: The OSM value of the entity
+                  weather:
+                    type: object
+                    description: weather object
+                    properties:
+                      current:
+                        type: string
+                        description: Current weather status of address
+                      forecasts:
+                        type: array
+                        description: Weather forecasts of the next 16 days 
+                  bike:
+                    type: object
+                    description: Bike sharing object
+                    properties:
+                      properties:
+                      company:
+                        type: string
+                        description: The company providing the bike sharing service
+                      gbfs_href:
+                        type: string
+                        description: Website url of the bike sharing service
+                      href:
+                        type: string
+                        description: resource URI on bike sharing API Website
+                      id:
+                        type: string
+                        description: bike sharing identifier
+                      location:
+                        type: object
+                        properties:
+                          city:
+                            type: string
+                            description: City where the bike sharing service is available
+                          country:
+                            type: string
+                            description: Country where the city is located
+                          latitude:
+                            type: number
+                            description: latitute coordinate value
+                          longitude:
+                            type: number
+                            description: longitude coordinate value
+                      name:
+                        type: string
+                        description: name of the bike sharing service  
+                      source:
+                        type: string
+                        description: link web of the bike sharing provider
+                  poi:
+                    type: array
+                    description: array of POI objects
+        '400':
+          $ref: '#/components/responses/BadRequest'
+                    
+                        
   '/v1/history':
     get:
       summary: Get the history of the research of a user
@@ -264,6 +389,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/token'
           description: token of the user
+        
       responses:
         '200':
           description: History of the user retrieved
