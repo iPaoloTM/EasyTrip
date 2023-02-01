@@ -9,8 +9,4 @@ router.get('/current', eventHandler.current);
 
 router.get('/forecast', eventHandler.forecast);
 
-router.get('/about', function(req, res) {
-  res.send('About weather');
-});
-
 module.exports = router;
