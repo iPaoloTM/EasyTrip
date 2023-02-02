@@ -11,7 +11,7 @@ info:
     url: https://jsonplaceholder.typicode.com
 servers:
   - url: http://localhost:12349
-    description: EasyTrip server
+    description: EasyTrip Facade server
   - url: http://localhost:12348
     description: Path Search server
   - url: http://localhost:12347
@@ -19,7 +19,7 @@ servers:
   - url: http://localhost:12346
     description: OSM Tools server
   - url: http://localhost:12345
-    description: Auth server
+    description: Auth Tools server
   
 paths:
   '/v1/users/login':
@@ -33,15 +33,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - "username"
+                - "password"
               properties:
                 username:
                   type: string
                   example: 'user1'
-                  required: true
                 password:
                   type: string
                   example: 'user1_password'
-                  required: true
       responses:
         '200':
           description: Token sucessfully created
@@ -81,23 +82,24 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - "username"
+                - "email"
+                - "password"
+                - "passwordConfirm"
               properties:
                 username:
                   type: string
                   example: 'user1'
-                  required: true
                 email:
                   type: string
                   example: 'user@domain.com'
-                  required: true
                 password:
                   type: string
                   example: 'user1_password'
-                  required: true
                 passwordConfirm:
                   type: string
                   example: 'user1_password'
-                  required: true
       responses:
         '200':
           description: New user sucessfully created
@@ -141,11 +143,7 @@ paths:
       tags:
         - Point Search
       parameters:
-        - name: city
-          in: query
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/city'
           description: City on which to get current weather status
       responses:
         '200':
@@ -209,38 +207,7 @@ paths:
                     type: boolean
                     description: Success of request
                   message:
-                    type: object
-                    properties:
-                      company:
-                        type: string
-                        description: The company providing the bike sharing service
-                      gbfs_href:
-                        type: string
-                        description: Website url of the bike sharing service
-                      href:
-                        type: string
-                        description: resource URI on bike sharing API Website
-                      id:
-                        type: string
-                        description: bike sharing identifier
-                      location:
-                        type: object
-                        properties:
-                          city:
-                            type: string
-                            description: City where the bike sharing service is available
-                          country:
-                            type: string
-                            description: Country where the city is located
-                          latitude:
-                            type: number
-                            description: latitute coordinate value
-                          longitude:
-                            type: number
-                            description: longitude coordinate value
-                      name:
-                        type: string
-                        description: name of the bike sharing service              
+                    $ref: '#/components/schemas/bikes'
         '404':
           description: Not found
           content:
@@ -250,7 +217,7 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Success of the Request 
+                    description: Outcome of the Request
                   message:
                     type: string
                     description: Empty message
@@ -262,20 +229,14 @@ paths:
       tags:
         - Point Search
       parameters:
-        address:
-          type: string
+        - $ref: '#/components/parameters/address'
           description: address of the destination
-        weather:
-          type: boolean
+        - $ref: '#/components/parameters/weather'
           description: describe if in the request user wants weather forecasts
-        bike:
-          type: boolean
+        - $ref: '#/components/parameters/bikes'
           description: describe if in the request user wants bike sharing
-        interest:
-          type: array
-          items:
-            type: string
-            description: interest of the search for the point of interests/
+        - $ref: '#/components/parameters/interest'
+          description: user interests for point of interest search
       responses:
         '200':
           description: Object about requested information and points of interest
@@ -285,101 +246,13 @@ paths:
                 type: object
                 properties:
                   address:
-                    type: object
-                    properties:
-                      point:
-                        type: object
-                        properties:
-                          lat:
-                            type: string
-                            description: latitude of the searched location
-                          lng:
-                            type: string
-                            description: longitude of the searched location
-                      extent:
-                        type: array
-                        description: bounding box of the searched location
-                      name:
-                        type: string
-                        description: The name of the entity. Can be a boundary, POI, address, etc
-                      country:
-                        type: string
-                        description: The country of the address
-                      city:
-                        type: string
-                        description: The city of the address
-                      countrycode:
-                        type: string
-                        description: The state of the address
-                      state:
-                        type: string
-                        description: The state of the address
-                      postcode:
-                        type: string
-                        description: The postcode of the address
-                      osm_id:
-                        type: string
-                        description: The OSM ID of the entity
-                      osm_type:
-                        type: string
-                        description: N = node, R = relation, W = way
-                      osm_key:
-                        type: string
-                        description: The OSM key of the entity
-                      osm_key:
-                        type: string
-                        description: The OSM value of the entity
+                    $ref: '#/components/schemas/geocode'
                   weather:
-                    type: object
-                    description: weather object
-                    properties:
-                      current:
-                        type: string
-                        description: Current weather status of address
-                      forecasts:
-                        type: array
-                        description: Weather forecasts of the next 16 days 
+                    $ref: '#/components/schemas/weather'
                   bike:
-                    type: object
-                    description: Bike sharing object
-                    properties:
-                      properties:
-                      company:
-                        type: string
-                        description: The company providing the bike sharing service
-                      gbfs_href:
-                        type: string
-                        description: Website url of the bike sharing service
-                      href:
-                        type: string
-                        description: resource URI on bike sharing API Website
-                      id:
-                        type: string
-                        description: bike sharing identifier
-                      location:
-                        type: object
-                        properties:
-                          city:
-                            type: string
-                            description: City where the bike sharing service is available
-                          country:
-                            type: string
-                            description: Country where the city is located
-                          latitude:
-                            type: number
-                            description: latitute coordinate value
-                          longitude:
-                            type: number
-                            description: longitude coordinate value
-                      name:
-                        type: string
-                        description: name of the bike sharing service  
-                      source:
-                        type: string
-                        description: link web of the bike sharing provider
+                    $ref: '#/components/schemas/bikes'
                   poi:
-                    type: array
-                    description: array of POI objects
+                    $ref: '#/components/schemas/poi'
         '400':
           $ref: '#/components/responses/BadRequest'
   '/v1/trip/destination':
@@ -387,22 +260,16 @@ paths:
       summary: Get the information the destination of the trip
       description: Return information about the weather, bike sharing and points of interest for the destination of the trip
       tags:
-        - Facade
+        - EasyTrip Facade
       parameters:
-        address:
-          type: string
+        - $ref: '#/components/parameters/address'
           description: address of the destination
-        weather:
-          type: boolean
+        - $ref: '#/components/parameters/weather'
           description: describe if in the request user wants weather forecasts
-        bike:
-          type: boolean
+        - $ref: '#/components/parameters/bikes'
           description: describe if in the request user wants bike sharing
-        interest:
-          type: array
-          items:
-            type: string
-            description: interest of the search for the point of interests
+        - $ref: '#/components/parameters/interest'
+          description: user interests for point of interest search. If not specified it the search won't be performed
       responses:
         '200':
           description: Object about requested information and points of interest
@@ -411,127 +278,33 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    description: Success of the request
-                  message:
-                    type: object
-                    description: Object containting requested information
-                    properties:
-                      address:
-                        type: object
-                        properties:
-                          point:
-                            type: object
-                            properties:
-                              lat:
-                                type: string
-                                description: latitude of the searched location
-                              lng:
-                                type: string
-                                description: longitude of the searched location
-                          extent:
-                            type: array
-                            description: bounding box of the searched location
-                          name:
-                            type: string
-                            description: The name of the entity. Can be a boundary, POI, address, etc
-                          country:
-                            type: string
-                            description: The country of the address
-                          city:
-                            type: string
-                            description: The city of the address
-                          countrycode:
-                            type: string
-                            description: The state of the address
-                          state:
-                            type: string
-                            description: The state of the address
-                          postcode:
-                            type: string
-                            description: The postcode of the address
-                          osm_id:
-                            type: string
-                            description: The OSM ID of the entity
-                          osm_type:
-                            type: string
-                            description: N = node, R = relation, W = way
-                          osm_key:
-                            type: string
-                            description: The OSM key of the entity
-                          osm_key:
-                            type: string
-                            description: The OSM value of the entity
-                      weather:
-                        type: object
-                        description: weather object
-                        properties:
-                          current:
-                            type: string
-                            description: Current weather status of address
-                          forecasts:
-                            type: array
-                            description: Weather forecasts of the next 16 days 
-                      bike:
-                        type: object
-                        description: Bike sharing object
-                        properties:
-                          properties:
-                          company:
-                            type: string
-                            description: The company providing the bike sharing service
-                          gbfs_href:
-                            type: string
-                            description: Website url of the bike sharing service
-                          href:
-                            type: string
-                            description: resource URI on bike sharing API Website
-                          id:
-                            type: string
-                            description: bike sharing identifier
-                          location:
-                            type: object
-                            properties:
-                              city:
-                                type: string
-                                description: City where the bike sharing service is available
-                              country:
-                                type: string
-                                description: Country where the city is located
-                              latitude:
-                                type: number
-                                description: latitute coordinate value
-                              longitude:
-                                type: number
-                                description: longitude coordinate value
-                          name:
-                            type: string
-                            description: name of the bike sharing service  
-                          source:
-                            type: string
-                            description: link web of the bike sharing provider
-                      poi:
-                        type: array
-                        description: array of POI objects
+                  address:
+                    $ref: '#/components/schemas/geocode'
+                  weather:
+                    $ref: '#/components/schemas/weather'
+                  bike:
+                    $ref: '#/components/schemas/bikes'
+                  poi:
+                    $ref: '#/components/schemas/poi'
         '400':
           $ref: '#/components/responses/BadRequest'
-      
-  'v1/trip/travel':
+
+  '/v1/trip/travel':
     get:
-      summary:
-      description:
+      summary: a
+      description: a
       tags:
-        - Facade
-      parameters:
-      responses: 
+        - EasyTrip Facade
+      responses:
+        '200':
+          description: a
                         
   '/v1/history':
     get:
       summary: Get the history of the research of a user
       description: Return the history of the research of a user (both destination and travel search)
       tags:
-        - History Tools
+        - EasyTrip Facade
       parameters:
         - $ref: '#/components/parameters/token'
           description: token of the user
@@ -556,7 +329,7 @@ paths:
       summary: Delete a research saved in the history
       description: Delete a research in the history for the user identified by the token and based on the id given
       tags:
-        - History Tools
+        - EasyTrip Facade
       parameters:
         - $ref: '#/components/parameters/token'
           description: token of the user
@@ -603,6 +376,24 @@ components:
       example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0b3B0YWwuY29tIiwiZXhwIjoxNDI2NDIwODAwLCJodHRwOi8vdG9wdGFsLmNvbS9qd3RfY2xhaW1zL2lzX2FkbWluIjp0cnVlLCJjb21wYW55IjoiVG9wdGFsIiwiYXdlc29tZSI6dHJ1ZX0.yRQYnWzskCZUxPwaQupWkiUzKELZ49eM7oWxAQK_ZXw'
       schema:
         type: string
+    weather:
+      name: weather
+      in: query
+      schema:
+        type: boolean
+    bikes:
+      name: bikes
+      in: query
+      schema:
+        type: boolean
+    interest:
+      name: interest
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          description: interest of the search for the point of interests
   schemas:
     user:   
       type: object
@@ -754,6 +545,56 @@ components:
               postcode:
                 type: string
                 description: The postcode of the address
+    bikes:
+      type: object
+      properties:
+        company:
+          type: string
+          description: The company providing the bike sharing service
+        gbfs_href:
+          type: string
+          description: Website url of the bike sharing service
+        href:
+          type: string
+          description: resource URI on bike sharing API Website
+        id:
+          type: string
+          description: bike sharing identifier
+        location:
+          type: object
+          properties:
+            city:
+              type: string
+              description: City where the bike sharing service is available
+            country:
+              type: string
+              description: Country where the city is located
+            latitude:
+              type: number
+              description: latitute coordinate value
+            longitude:
+              type: number
+              description: longitude coordinate value
+        name:
+          type: string
+          description: name of the bike sharing service
+        source:
+          type: string
+          description: link web of the bike sharing provider
+    weather:
+      type: object
+      properties:
+        current:
+          type: string
+          description: Current weather status of address
+        forecasts:
+          type: array
+          description: Weather forecasts of the next 16 days
+          items:
+            type: string
+    poi:
+      type: array
+      description: array of POI objects
   responses:
     NoToken:
       description: No token provided
