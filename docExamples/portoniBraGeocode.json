@@ -1,0 +1,23 @@
+{
+    "point": {
+        "lat": 45.4381137,
+        "lng": 10.991458636983399
+    },
+    "extent": [
+        10.9912727,
+        45.4380544,
+        10.9916624,
+        45.4381684
+    ],
+    "name": "Portoni della Bra",
+    "country": "Italy",
+    "countrycode": "IT",
+    "city": "Verona",
+    "state": "Veneto",
+    "street": "Corso Porta Nuova",
+    "postcode": "37122",
+    "osm_id": 138810076,
+    "osm_type": "W",
+    "osm_key": "historic",
+    "osm_value": "citywalls"
+}

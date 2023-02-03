@@ -191,8 +191,8 @@ paths:
 
   '/v1/locations/poi':
     get:
-      summary: Get point of interest within an area
-      description: Get point of interest within an area
+      summary: Get points of interests within an area
+      description: Get points of interests within an area
       tags:
         - OSM Tools
       parameters:
@@ -203,7 +203,14 @@ paths:
           schema:
             $ref: '#/components/schemas/pointStr'
           example: ["45.438611","10.992778"]
-        - $ref: '#/components/parameters/squareSide'
+        - name: squareSide
+          in: query
+          description: Side of the bounding box created from point
+          schema:
+            type: number
+            minimum: 0
+            default: 20000
+          example: 20000
         - name: bbox
           in: query
           description: If specified, point and squareSide are ignored and this become the area of search
@@ -212,7 +219,7 @@ paths:
           example: "10.8768512,45.3494402,11.1239,45.5418375"
       responses:
         '200':
-          description: Resulting point of interests retrieved
+          description: Resulting points of interests retrieved
           content:
             application/json:
               schema:
@@ -393,6 +400,78 @@ paths:
           $ref: '#/components/responses/BadRequest'
 
 
+  '/v1/path/stops':
+    get:
+      summary: Get stops, based on user interests, for a travel
+      description: Get stops, based on user interests, for a travel
+      tags:
+        - Path Search
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/end'
+        - $ref: '#/components/parameters/requiredInterest'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/minDistance'
+        - $ref: '#/components/parameters/maxDetour'
+        - $ref: '#/components/parameters/profile'
+        - name: poisDescriptions
+          in: query
+          description: If false returns a short answer with only the number of points of interests per stop. Otherwise return points of interests in full
+          schema:
+            type: boolean
+            default: true
+          example: true
+      responses:
+        '200':
+          description: Resulting stops retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/stopsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  '/v1/path/route':
+    get:
+      summary: Get route with stops based on user interests
+      description: Get route with stops based on user interests
+      tags:
+        - Path Search
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/end'
+        - $ref: '#/components/parameters/requiredInterest'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/minDistance'
+        - $ref: '#/components/parameters/maxDetour'
+        - $ref: '#/components/parameters/profile'
+      responses:
+        '200':
+          $ref: '#/components/responses/pathRoute'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Get route with stops based on user interests
+      description: Get route with stops based on user interests
+      tags:
+        - Path Search
+      parameters:
+        - $ref: '#/components/parameters/profile'
+      requestBody:
+        description: Stops of the route
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stops:
+                  $ref: '#/components/schemas/stopsResponse'
+      responses:
+        '200':
+          $ref: '#/components/responses/pathRoute'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   '/v1/trip/destination':
     get:
       summary: Get the information the destination of the trip
@@ -509,7 +588,7 @@ components:
       in: query
       schema:
         type: integer
-      example: 5
+      example: 1
     token:
       name: x-access-token
       in: header
@@ -529,15 +608,15 @@ components:
       schema:
         type: boolean
     interest:
-      description: User interests
       name: interest
       in: query
+      description: User interests
       schema:
         $ref: '#/components/schemas/interests'
     requiredInterest:
-      description: User interests
       name: interest
       in: query
+      description: User interests
       required: true
       schema:
         $ref: '#/components/schemas/interests'
@@ -551,16 +630,41 @@ components:
           - "car"
           - "foot"
           - "bike"
+        default: "car"
       example: "car"
-    squareSide:
-      name: squareSide
+    start:
+      description: Starting address
+      name: start
       in: query
-      description: Side of the bounding box created from point
+      schema:
+        type: string
+      required: true
+      example: "Arena Verona"
+    end:
+      description: Ending address
+      name: end
+      in: query
+      schema:
+        type: string
+      required: true
+      example: "I portoni della brà"
+    minDistance:
+      name: minDistance
+      in: query
+      description: Minimum distance between two stops
       schema:
         type: number
         minimum: 0
         default: 20000
       example: 20000
+    maxDetour:
+      name: maxDetour
+      in: query
+      description: Max distance of a detour for a stop. It has to be less or equal then minDistance/2, otherwise its default value wil be that value
+      schema:
+        type: number
+        minimum: 0
+      example: 10000
 
   schemas:
     user:
@@ -712,6 +816,21 @@ components:
         postcode:
           type: string
           description: The postcode of the address
+    start:
+      allOf:
+        - $ref: '#/components/schemas/geocode'
+        - example:
+            $ref: 'docExamples/arenaGeocode.json'
+    end:
+      allOf:
+        - $ref: '#/components/schemas/geocode'
+        - example:
+            $ref: 'docExamples/portoniBraGeocode.json'
+    intermediate:
+      allOf:
+        - $ref: '#/components/schemas/geocode'
+        - example:
+            $ref: 'docExamples/veronaGeocode.json'
     bikes:
       type: object
       properties:
@@ -818,10 +937,12 @@ components:
               type: number
               example: 2
         paths:
-          type: array
-          description: Paths available
-          items:
-            $ref: '#/components/schemas/path'
+          $ref: '#/components/schemas/paths'
+    paths:
+      type: array
+      description: Paths available
+      items:
+        $ref: '#/components/schemas/path'
     path:
       type: object
       properties:
@@ -911,7 +1032,7 @@ components:
       type: array
       items:
         type: string
-        description: interest of the search for the point of interests
+        description: interest of the search for the points of interests
         enum:
           - "sustenance"
           - "education"
@@ -954,7 +1075,7 @@ components:
       example: 0.6
     overpassGenerator:
       type: string
-      description: Generator used to retrieve point of interests
+      description: Generator used to retrieve data
       example: Overpass API 0.7.59 e21c39fe
     overpassOsm3s:
       type: object
@@ -967,6 +1088,23 @@ components:
         copyright:
           type: string
           example: The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.
+    stopsResponse:
+      type: object
+      properties:
+        start:
+          $ref: '#/components/schemas/start'
+        end:
+          $ref: '#/components/schemas/end'
+        intermediates:
+          type: array
+          description: Intermediary stops
+          items:
+            type: object
+            properties:
+              details:
+                $ref: '#/components/schemas/intermediate'
+              pois:
+                $ref: '#/components/schemas/poiArray'
 
   responses:
     NoToken:
@@ -979,3 +1117,12 @@ components:
       description: User already existing
     ServerError:
       description: Server error
+    pathRoute:
+      description: Resulting route retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              route:
+                $ref: '#/components/schemas/paths'

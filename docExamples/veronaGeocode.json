@@ -1,0 +1,20 @@
+{
+    "point": {
+        "lat": 45.4384958,
+        "lng": 10.9924122
+    },
+    "extent": [
+        10.8768512,
+        45.3494402,
+        11.1239,
+        45.5418375
+    ],
+    "name": "Verona",
+    "country": "Italy",
+    "countrycode": "IT",
+    "state": "Veneto",
+    "osm_id": 44830,
+    "osm_type": "R",
+    "osm_key": "place",
+    "osm_value": "city"
+}
