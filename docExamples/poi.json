@@ -1,0 +1,25 @@
+{
+    "type": "node",
+    "id": 3210974287,
+    "lat": 45.4399535,
+    "lon": 10.987865,
+    "tags": {
+        "addr:city": "Verona",
+        "addr:country": "IT",
+        "addr:housenumber": "2",
+        "addr:postcode": "37121",
+        "addr:street": "Corso Castelvecchio",
+        "fax": "+39 045 8010729",
+        "fee": "yes",
+        "name": "Museo di Castelvecchio",
+        "name:it": "Museo di Castelvecchio",
+        "name:ru": "Музей Кастельвеккьо",
+        "opening_hours": "Tu-Su 10:00-18:00",
+        "operator": "Comune di Verona",
+        "phone": "+39 045 8062611",
+        "tourism": "museum",
+        "website": "https://museodicastelvecchio.comune.verona.it/",
+        "wikidata": "Q2518724",
+        "wikipedia": "it:Museo di Castelvecchio"
+    }
+}

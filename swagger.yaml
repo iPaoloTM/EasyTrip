@@ -34,8 +34,8 @@ paths:
             schema:
               type: object
               required:
-                - "username"
-                - "password"
+                - username
+                - password
               properties:
                 username:
                   type: string
@@ -83,10 +83,10 @@ paths:
             schema:
               type: object
               required:
-                - "username"
-                - "email"
-                - "password"
-                - "passwordConfirm"
+                - username
+                - email
+                - password
+                - passwordConfirm
               properties:
                 username:
                   type: string
@@ -122,20 +122,154 @@ paths:
         - OSM Tools
       parameters:
         - $ref: '#/components/parameters/address'
-          description: Address to do geocode
         - $ref: '#/components/parameters/limit'
-          description: Max number of geocode results
+        - name: closestTo
+          in: query
+          description: If specified, the endpoint will return the result closest to this point (if any), otherwise it will return up to <limit> results
+          schema:
+            $ref: '#/components/schemas/pointStr'
+          example: "45.439124213114084,10.994315086270243"
+        - name: onlyPlaces
+          in: query
+          description: If true, results will be only OSM places (es. city, ...)
+          schema:
+            type: boolean
+          example: false
       responses:
         '200':
           description: Geocode results retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/geocode'
-                description: Geocode results object
+                type: object
+                properties:
+                  hits:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/geocode'
+                    example:
+                      - $ref: 'docExamples/arenaGeocode.json'
+                  locale:
+                    type: string
+                    description: Language used
+                    example: "en"
         '400':
           $ref: '#/components/responses/BadRequest'
-        
+
+  '/v1/routing/route':
+    get:
+      summary: Get the route between two points
+      description: Get the route between two points
+      tags:
+        - OSM Tools
+      parameters:
+        - name: point
+          in: query
+          description: Points of the route. You have to specify point singularly (the order count). E.g., &point=45.439124213114084,10.994315086270243&point46.06339563874866,11.114865753180371
+          schema:
+            type: array
+            minItems: 2
+            items:
+              $ref: '#/components/schemas/pointStr'
+          example: ["45.439124213114084,10.994315086270243","46.06339563874866,11.114865753180371"]
+        - $ref: '#/components/parameters/profile'
+        - name: shortAnswer
+          in: query
+          description: If true the endpoint will return only information about the route, otherwise it will return points and instructions
+          schema:
+            type: boolean
+          example: false
+      responses:
+        '200':
+          description: Resulting route retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  '/v1/locations/poi':
+    get:
+      summary: Get point of interest within an area
+      description: Get point of interest within an area
+      tags:
+        - OSM Tools
+      parameters:
+        - $ref: '#/components/parameters/requiredInterest'
+        - name: point
+          in: query
+          description: Center of search (Format <latitude>,<longitude>)
+          schema:
+            $ref: '#/components/schemas/pointStr'
+          example: ["45.438611","10.992778"]
+        - $ref: '#/components/parameters/squareSide'
+        - name: bbox
+          in: query
+          description: If specified, point and squareSide are ignored and this become the area of search
+          schema:
+            $ref: '#/components/schemas/bboxStr'
+          example: "10.8768512,45.3494402,11.1239,45.5418375"
+      responses:
+        '200':
+          description: Resulting point of interests retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    $ref: '#/components/schemas/overpassVersion'
+                  generator:
+                    $ref: '#/components/schemas/overpassGenerator'
+                  osm3s:
+                    $ref: '#/components/schemas/overpassOsm3s'
+                  elements:
+                    $ref: '#/components/schemas/poiArray'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  '/v1/locations/nearbyCities':
+    get:
+      summary: Get residential areas around a point
+      description: Get residential areas around a point
+      tags:
+        - OSM Tools
+      parameters:
+        - name: point
+          in: query
+          description: Center of search (Format <latitude>,<longitude>)
+          schema:
+            $ref: '#/components/schemas/pointStr'
+          example: ["45.438611","10.992778"]
+        - name: range
+          in: query
+          description: Range of search
+          schema:
+            type: number
+            minimum: 0
+            default: 5000
+          example: 5000
+      responses:
+        '200':
+          description: Resulting cities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    $ref: '#/components/schemas/overpassVersion'
+                  generator:
+                    $ref: '#/components/schemas/overpassGenerator'
+                  osm3s:
+                    $ref: '#/components/schemas/overpassOsm3s'
+                  elements:
+                    $ref: '#/components/schemas/citiesArray'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+
   '/v1/weather/current':
     get:
       summary: Get current weather given a certain place
@@ -162,6 +296,7 @@ paths:
                   message:
                     type: string
                     description: current weather statusDocumenti
+
   '/v1/weather/forecast':
     get:
       summary: Get weather forecast given a certain place
@@ -187,6 +322,7 @@ paths:
                   message:
                     type: array
                     description: array of weather forecasts of the next 16 days
+
   '/v1/bikes/networks':
     get:
       summary: Get data about bike sharing available in a certain place
@@ -221,7 +357,7 @@ paths:
                   message:
                     type: string
                     description: Empty message
-#interest=sustenance&interest=tourism
+
   '/v2/combined/about':
     get:
       summary: Get information about weather, bike sharing and points of interest in a certain location based on some choices
@@ -252,9 +388,11 @@ paths:
                   bike:
                     $ref: '#/components/schemas/bikes'
                   poi:
-                    $ref: '#/components/schemas/poi'
+                    $ref: '#/components/schemas/poiArray'
         '400':
           $ref: '#/components/responses/BadRequest'
+
+
   '/v1/trip/destination':
     get:
       summary: Get the information the destination of the trip
@@ -285,7 +423,7 @@ paths:
                   bike:
                     $ref: '#/components/schemas/bikes'
                   poi:
-                    $ref: '#/components/schemas/poi'
+                    $ref: '#/components/schemas/poiArray'
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -298,7 +436,7 @@ paths:
       responses:
         '200':
           description: a
-                        
+
   '/v1/history':
     get:
       summary: Get the history of the research of a user
@@ -358,16 +496,20 @@ components:
         type: string
       required: true
     address:
+      description: Address to search
       name: address
       in: query
       schema:
         type: string
       required: true
+      example: "Verona"
     limit:
+      description: Max number of results
       name: limit
       in: query
       schema:
         type: integer
+      example: 5
     token:
       name: x-access-token
       in: header
@@ -387,15 +529,41 @@ components:
       schema:
         type: boolean
     interest:
+      description: User interests
       name: interest
       in: query
       schema:
-        type: array
-        items:
-          type: string
-          description: interest of the search for the point of interests
+        $ref: '#/components/schemas/interests'
+    requiredInterest:
+      description: User interests
+      name: interest
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/interests'
+    profile:
+      name: profile
+      in: query
+      description: describe the type of travel
+      schema:
+        type: string
+        enum:
+          - "car"
+          - "foot"
+          - "bike"
+      example: "car"
+    squareSide:
+      name: squareSide
+      in: query
+      description: Side of the bounding box created from point
+      schema:
+        type: number
+        minimum: 0
+        default: 20000
+      example: 20000
+
   schemas:
-    user:   
+    user:
       type: object
       properties:
         username:
@@ -498,53 +666,52 @@ components:
                     description: define the endpoint used
     geocode:
       type: object
+      description: Geocode result
       properties:
-        hits:
-          type: array
-          items:
-            type: object
-            description: Geocode result
-            properties:
-              point:
-                type: object
-                description: Coordinates
-                properties:
-                  lat:
-                    type: number
-                    description: Latitude
-                  lng:
-                    type: number
-                    description: Longitude
-              osm_id:
-                type: string
-                description: The OSM ID of the entity
-              osm_type:
-                type: string
-                description: N = node, R = relation, W = way
-              osm_key:
-                type: string
-                description: The OSM key of the entity
-              name:
-                type: string
-                description: The name of the entity. Can be a boundary, POI, address, etc
-              country:
-                type: string
-                description: The country of the address
-              city:
-                type: string
-                description: The city of the address
-              state:
-                type: string
-                description: The state of the address
-              street:
-                type: string
-                description: The street of the address
-              housenumber:
-                type: string
-                description: The housenumber of the address
-              postcode:
-                type: string
-                description: The postcode of the address
+        point:
+          type: object
+          properties:
+            lat:
+              $ref: '#/components/schemas/latitude'
+            lng:
+              $ref: '#/components/schemas/longitude'
+          description: Coordinates
+        osm_id:
+          type: string
+          description: The OSM ID of the entity
+        osm_type:
+          type: string
+          description: N = node, R = relation, W = way
+        osm_key:
+          type: string
+          description: The OSM key of the entity
+        osm_value:
+          type: string
+          description: The OSM value of the entity
+        name:
+          type: string
+          description: The name of the entity. Can be a boundary, POI, address, etc
+        country:
+          type: string
+          description: The country of the address
+        countrycode:
+          type: string
+          description: Code representation of country
+        city:
+          type: string
+          description: The city of the address
+        state:
+          type: string
+          description: The state of the address
+        street:
+          type: string
+          description: The street of the address
+        housenumber:
+          type: string
+          description: The housenumber of the address
+        postcode:
+          type: string
+          description: The postcode of the address
     bikes:
       type: object
       properties:
@@ -592,9 +759,215 @@ components:
           description: Weather forecasts of the next 16 days
           items:
             type: string
-    poi:
+    latitude:
+      type: number
+      description: Latitude
+      minimum: -90
+      maximum: 90
+    longitude:
+      type: number
+      description: Longitude
+      minimum: -180
+      maximum: 180
+    pointStr:
+      type: string
+      description: Coordinates of the format <latitude>,<longitude>
+      pattern: '^[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+$'
+    graphhopperResultPoints:
+      type: object
+      description: Geometry of the route
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+          description: List of coordinate pairs [lon,lat]
+          minItems: 2
+          maxItems: 2
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/longitude'
+              - $ref: '#/components/schemas/latitude'
+    bbox:
       type: array
-      description: array of POI objects
+      description: Area delimited by coordinates. Format [minLon, minLat, maxLon, maxLat]
+      minItems: 4
+      maxItems: 4
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/longitude'
+          - $ref: '#/components/schemas/latitude'
+    bboxStr:
+      type: string
+      description: Bounding box ([minLon,minLat,maxLon,maxLat]) of search
+      pattern: '^[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+$'
+    route:
+      type: object
+      properties:
+        info:
+          type: object
+          description: Additional information for your request
+          properties:
+            copyright:
+              type: array
+              description: Attribution according to Graphhopper documentation is necessary if no white-label option included.
+              items:
+                type: string
+              example: ["GraphHopper","OpenStreetMap contributors"]
+            took:
+              type: number
+              example: 2
+        paths:
+          type: array
+          description: Paths available
+          items:
+            $ref: '#/components/schemas/path'
+    path:
+      type: object
+      properties:
+        distance:
+          type: number
+          description: Total distance, in meters
+        time:
+          type: integer
+          description: Total travel time, in milliseconds
+        ascend:
+          type: number
+          description: Total ascent, in meters
+        descend:
+          type: number
+          description: Total descent, in meters
+        points:
+          $ref: '#/components/schemas/graphhopperResultPoints'
+          description: Geometry of the route
+        snapped_waypoints:
+          $ref: '#/components/schemas/graphhopperResultPoints'
+          description: Snapped input points
+        points_encoded:
+          type: boolean
+          description: Whether the points and snapped_waypoints fields are polyline-encoded strings rather than JSON arrays of coordinates
+          enum:
+            - false
+        bbox:
+          $ref: '#/components/schemas/bbox'
+          description: Bounding box of the route geometry. Format [minLon, minLat, maxLon, maxLat]
+        instructions:
+          type: array
+          description: The instructions for this route
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                description: Description what the user has to do in order to follow the route
+              street_name:
+                type: string
+                description: Name of the street to turn onto in order to follow the route
+              distance:
+                type: number
+                description: Distance for this instruction, in meters
+              time:
+                type: integer
+                description: Duration for this instruction, in milliseconds
+              interval:
+                type: array
+                description: Two indices into points, referring to the beginning and the end of the segment of the route this instruction refers to
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: integer
+              sign:
+                type: integer
+                description: A number which specifies the (Graphhopper) sign to show
+                enum:
+                  - -98
+                  - -8
+                  - -7
+                  - -6
+                  - -3
+                  - -2
+                  - -1
+                  - 0
+                  - 1
+                  - 2
+                  - 3
+                  - 4
+                  - 5
+                  - 6
+                  - 7
+                  - 8
+              exit_number:
+                type: integer
+                description: Only available for roundabout instructions (sign is 6). The count of exits at which the route leaves the roundabout
+              turn_angle:
+                type: number
+                description: Only available for roundabout instructions (sign is 6). The radian of the route within the roundabout 0 < r < 2*PI for clockwise and -2*PI < r < 0 for counterclockwise turns
+        details:
+          type: object
+          description: Various etails
+      example:
+        $ref: 'docExamples/miniPath.json'
+    interests:
+      type: array
+      items:
+        type: string
+        description: interest of the search for the point of interests
+        enum:
+          - "sustenance"
+          - "education"
+          - "entertainment"
+          - "tourism"
+          - "accomodation"
+    poiArray:
+      type: array
+      description: Array of POI objects
+      items:
+        $ref: '#/components/schemas/poi'
+      example:
+        - $ref: 'docExamples/poi.json'
+    citiesArray:
+      type: array
+      description: Array of cities objects
+      items:
+        $ref: '#/components/schemas/poi'
+      example:
+        - $ref: 'docExamples/city.json'
+    poi:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - node
+        id:
+          type: integer
+        lat:
+          $ref: '#/components/schemas/latitude'
+        lon:
+          $ref: '#/components/schemas/longitude'
+        tags:
+          type: object
+          description: Open Street Map tags
+    overpassVersion:
+      type: number
+      description: Version of Overpass API used
+      example: 0.6
+    overpassGenerator:
+      type: string
+      description: Generator used to retrieve point of interests
+      example: Overpass API 0.7.59 e21c39fe
+    overpassOsm3s:
+      type: object
+      description: Open Street Map information
+      properties:
+        timestamp_osm_base:
+          type: string
+          format: date-time
+          example: 2023-02-02T23:24:24Z
+        copyright:
+          type: string
+          example: The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.
+
   responses:
     NoToken:
       description: No token provided

@@ -1,0 +1,23 @@
+{
+    "point": {
+        "lat": 45.43897685,
+        "lng": 10.993802437972391
+    },
+    "extent": [
+        10.9935591,
+        45.4383707,
+        10.9951436,
+        45.4395625
+    ],
+    "name": "Verona Arena",
+    "country": "Italy",
+    "countrycode": "IT",
+    "city": "Verona",
+    "state": "Veneto",
+    "street": "Piazza Brà",
+    "postcode": "37121",
+    "osm_id": 311873,
+    "osm_type": "R",
+    "osm_key": "historic",
+    "osm_value": "amphitheatre"
+}
