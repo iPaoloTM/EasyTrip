@@ -1,0 +1,57 @@
+{
+    "destination": [
+    {
+        "_id": "63dbd6bd247fff4d88eee650",
+        "dateTime": "2023-02-02T15:29:01.006Z",
+        "parameters": {
+            "address": "Trento",
+            "bikes": false,
+            "interest": [
+                "education",
+                "tourism"
+            ],
+            "weather": true
+        },
+        "route": "/v1/trip",
+        "type": "destination",
+        "url": "/v1/trip/destination?&address=Trento&weather=true&bikes=false&interest=education&interest=tourism"
+    },
+    {
+        "_id": "63d7cc4fc599672ceba1cbc5",
+        "dateTime": "2023-01-30T13:55:27.693Z",
+        "parameters": {
+            "address": "Bolzano",
+            "weather": true,
+            "bikes": false,
+            "interest": [
+                "tourism"
+            ]
+        },
+        "route": "/v1/trip",
+        "type": "destination",
+        "url": "/v1/trip/destination?&address=Bolzano&weather=true&bikes=false&interest=tourism"
+    }
+    ],
+    "travel": [
+    {
+        "_id": "63d7cbdac599672ceba1cbac",
+        "dateTime": "2023-01-30T13:53:30.758Z",
+        "parameters": {
+            "start": "Verona",
+            "end": "Roma",
+            "weather": true,
+            "bikes": true,
+            "interest": [
+                "tourism"
+            ],
+            "limit": 3,
+            "maxDetour": 10000,
+            "minDistance": 20000,
+            "profile": "car"
+        },
+        "route": "/v1/trip",
+        "type": "travel",
+        "url": "/v1/trip/travel?&start=Verona&end=Roma&weather=true&bikes=true&interest=tourism&limit=3&minDistance=20000&maxDetour=10000&profile=car"
+    }
+    ]
+  }

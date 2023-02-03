@@ -1,0 +1,17 @@
+{
+    "route": "/v1/trip",
+    "type": "travel",
+    "parameters": {
+        "start": "Verona",
+        "end": "Roma",
+        "weather": true,
+        "bikes": true,
+        "interest": [
+            "tourism"
+        ],
+        "limit": 3,
+        "maxDetour": 10000,
+        "minDistance": 20000,
+        "profile": "car"
+    }
+}

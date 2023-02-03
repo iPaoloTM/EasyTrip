@@ -49,8 +49,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-                description: User results object
+                allOf:
+                  - $ref: '#/components/schemas/user'
+                  - description: User results object
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -66,8 +67,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-                description: User results object
+                allOf:
+                  - $ref: '#/components/schemas/user'
+                  - description: User results object
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -106,8 +108,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-                description: User results object
+                allOf:
+                  - $ref: '#/components/schemas/user'
+                  - description: User results object
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
@@ -373,13 +376,9 @@ paths:
         - Point Search
       parameters:
         - $ref: '#/components/parameters/address'
-          description: address of the destination
         - $ref: '#/components/parameters/weather'
-          description: describe if in the request user wants weather forecasts
         - $ref: '#/components/parameters/bikes'
-          description: describe if in the request user wants bike sharing
         - $ref: '#/components/parameters/interest'
-          description: user interests for point of interest search
       responses:
         '200':
           description: Object about requested information and points of interest
@@ -427,7 +426,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/stopsResponse'
+                $ref: '#/components/schemas/routeStops'
         '400':
           $ref: '#/components/responses/BadRequest'
   '/v1/path/route':
@@ -465,7 +464,7 @@ paths:
               type: object
               properties:
                 stops:
-                  $ref: '#/components/schemas/stopsResponse'
+                  $ref: '#/components/schemas/routeStops'
       responses:
         '200':
           $ref: '#/components/responses/pathRoute'
@@ -480,43 +479,80 @@ paths:
         - EasyTrip Facade
       parameters:
         - $ref: '#/components/parameters/address'
-          description: address of the destination
         - $ref: '#/components/parameters/weather'
-          description: describe if in the request user wants weather forecasts
         - $ref: '#/components/parameters/bikes'
-          description: describe if in the request user wants bike sharing
         - $ref: '#/components/parameters/interest'
-          description: user interests for point of interest search. If not specified it the search won't be performed
       responses:
         '200':
           description: Object about requested information and points of interest
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  address:
-                    $ref: '#/components/schemas/geocode'
-                  weather:
-                    $ref: '#/components/schemas/weather'
-                  bike:
-                    $ref: '#/components/schemas/bikes'
-                  poi:
-                    $ref: '#/components/schemas/poiArray'
+                $ref: '#/components/schemas/endInfo'
         '400':
           $ref: '#/components/responses/BadRequest'
 
   '/v1/trip/travel':
     get:
-      summary: a
-      description: a
+      summary: Get information of the travel of the trip
+      description: Get information of the travel of the trip
       tags:
         - EasyTrip Facade
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/end'
+        - $ref: '#/components/parameters/weather'
+        - $ref: '#/components/parameters/bikes'
+        - $ref: '#/components/parameters/travelInterest'
+        - $ref: '#/components/parameters/travelLimit'
+        - $ref: '#/components/parameters/minDistance'
+        - $ref: '#/components/parameters/maxDetour'
+        - $ref: '#/components/parameters/profile'
       responses:
         '200':
-          description: a
+          description: Resoulting travel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start:
+                    type: object
+                    description: Beginning of the trip
+                    properties:
+                      address:
+                        $ref: '#/components/schemas/start'
+                  end:
+                    allOf:
+                      - $ref: '#/components/schemas/endInfo'
+                      - description: Destination of the trip
+                  intermediates:
+                    type: array
+                    description: Intermediary stops
+                    items:
+                      $ref: '#/components/schemas/intermediateInfo'
+                  paths:
+                    $ref: '#/components/schemas/paths'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   '/v1/history':
+    post:
+      summary: Clean errors and save a research
+      description: Clean errors and save a destination or travel research
+      tags:
+        - EasyTrip Facade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchToSave'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
     get:
       summary: Get the history of the research of a user
       description: Return the history of the research of a user (both destination and travel search)
@@ -532,8 +568,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/history'
-                description: History results object
+                type: object
+                properties:
+                  history:
+                    allOf:
+                    - $ref: '#/components/schemas/history'
+                    - description: History results object
         '401':
           $ref: '#/components/responses/NoToken'
         '403':
@@ -587,7 +627,14 @@ components:
       name: limit
       in: query
       schema:
-        type: integer
+        $ref: '#/components/schemas/limit'
+      example: 1
+    travelLimit:
+      description: Max number of results. If interest is not specified this does not count
+      name: limit
+      in: query
+      schema:
+        $ref: '#/components/schemas/limit'
       example: 1
     token:
       name: x-access-token
@@ -600,17 +647,21 @@ components:
     weather:
       name: weather
       in: query
+      description: describe if in the request user wants weather forecasts
       schema:
-        type: boolean
+        $ref: '#/components/schemas/weatherIndicator'
+      example: false
     bikes:
       name: bikes
       in: query
+      description: describe if in the request user wants bike sharing
       schema:
-        type: boolean
+        $ref: '#/components/schemas/bikesIndicator'
+      example: false
     interest:
       name: interest
       in: query
-      description: User interests
+      description: User interests. If not specified it the searchs won't be performed
       schema:
         $ref: '#/components/schemas/interests'
     requiredInterest:
@@ -620,17 +671,18 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/interests'
+    travelInterest:
+      name: interest
+      in: query
+      description: User interests. If not specified it the searchs of point of interests and intermediates stops won't be performed
+      schema:
+        $ref: '#/components/schemas/interests'
     profile:
       name: profile
       in: query
       description: describe the type of travel
       schema:
-        type: string
-        enum:
-          - "car"
-          - "foot"
-          - "bike"
-        default: "car"
+        $ref: '#/components/schemas/profile'
       example: "car"
     start:
       description: Starting address
@@ -653,20 +705,61 @@ components:
       in: query
       description: Minimum distance between two stops
       schema:
-        type: number
-        minimum: 0
-        default: 20000
+        $ref: '#/components/schemas/minDistance'
       example: 20000
     maxDetour:
       name: maxDetour
       in: query
       description: Max distance of a detour for a stop. It has to be less or equal then minDistance/2, otherwise its default value wil be that value
       schema:
-        type: number
-        minimum: 0
+        $ref: '#/components/schemas/maxDetour'
       example: 10000
 
   schemas:
+    limit:
+      type: integer
+      minimum: 0
+    weatherIndicator:
+      type: boolean
+      description: describe if in the request user wants weather forecasts
+      default: false
+      example: false
+    bikesIndicator:
+      type: boolean
+      description:  describe if in the request user wants bike sharing
+      default: false
+      example: false
+    interests:
+      type: array
+      items:
+        type: string
+        description: interest of the search for the points of interests
+        enum:
+          - "sustenance"
+          - "education"
+          - "entertainment"
+          - "tourism"
+          - "accomodation"
+    profile:
+      type: string
+      description: describe the type of travel. If limit is not specified this does not count
+      enum:
+        - "car"
+        - "foot"
+        - "bike"
+      default: "car"
+      example: "car"
+    minDistance:
+      type: number
+      description: Minimum distance between two stops. If limit is not specified this does not count
+      minimum: 0
+      default: 20000
+      example: 20000
+    maxDetour:
+      type: number
+      description: Max distance of a detour for a stop. It has to be less or equal then minDistance/2, otherwise its default value wil be that value. if minDistance is not specified this does not count
+      minimum: 0
+      example: 10000
     user:
       type: object
       properties:
@@ -678,96 +771,120 @@ components:
           type: string
           description: token of the user 
           example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0b3B0YWwuY29tIiwiZXhwIjoxNDI2NDIwODAwLCJodHRwOi8vdG9wdGFsLmNvbS9qd3RfY2xhaW1zL2lzX2FkbWluIjp0cnVlLCJjb21wYW55IjoiVG9wdGFsIiwiYXdlc29tZSI6dHJ1ZX0.yRQYnWzskCZUxPwaQupWkiUzKELZ49eM7oWxAQK_ZXw'
+    commonHistoryParameters:
+      type: object
+      additionalProperties: false
+      properties:
+        interest:
+          $ref: '#/components/schemas/interests'
+        weather:
+          $ref: '#/components/schemas/weatherIndicator'
+        bikes:
+          $ref: '#/components/schemas/bikesIndicator'
+    travelParameters:
+      allOf:
+        - type: object
+          description: parameters for travel search
+          required:
+            - start
+            - end
+          properties:
+            start:
+              type: string
+              description: Starting address
+            end:
+              type: string
+              description: Ending address
+            limit:
+              allOf:
+                - $ref: '#/components/schemas/limit'
+                - description: Max number of results. If interest is not specified this does not count
+                  default: 0
+                  example: 0
+            minDistance:
+              $ref: '#/components/schemas/minDistance'
+            maxDetour:
+              $ref: '#/components/schemas/maxDetour'
+            profile:
+              $ref: '#/components/schemas/profile'
+        - $ref: '#/components/schemas/commonHistoryParameters'
+    destinationParameters:
+      allOf:
+        - type: object
+          description: parameters for destination search
+          required:
+            - address
+          properties:
+            address:
+              type: string
+              description: Destination address
+        - $ref: '#/components/schemas/commonHistoryParameters'
+    historyElementBase:
+      type: object
+      properties:
+        route:
+          type: string
+          description: First part of the endpoint used for the research
+        type:
+          type: string
+          description: Final part of the endpoint used for the research
+          enum:
+            - travel
+            - destination
+    searchToSave:
+      allOf:
+        - $ref: '#/components/schemas/historyElementBase'
+        - description: Search information to save
+          properties:
+            parameters:
+              oneOf:
+              - $ref: '#/components/schemas/travelParameters'
+              - $ref: '#/components/schemas/destinationParameters'
+      example:
+        $ref: 'docExamples/searchToSave.json'
+    historyElementNewParams:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID of the research
+        dateTime:
+          type: string
+          description: date of when the search was made
+        url:
+          type: string
+          description: Path and query to replicate the research
+    travelHistoryElement:
+      allOf:
+        - $ref: '#/components/schemas/historyElementBase'
+        - $ref: '#/components/schemas/historyElementNewParams'
+        - description: Search information to save
+          properties:
+            parameters:
+              $ref: '#/components/schemas/travelParameters'
+    destinationHistoryElement:
+      allOf:
+        - $ref: '#/components/schemas/historyElementBase'
+        - $ref: '#/components/schemas/historyElementNewParams'
+        - description: Search information to save
+          properties:
+            parameters:
+              $ref: '#/components/schemas/destinationParameters'
     history:
       type: object
       properties:
         travel:
           type: array
+          description: Travel search results
           items:
-            type: object
-            description: Travel search result 
-            properties:
-              dateTime:
-                type: string
-                description: date of when the search was made
-              parameters:
-                type: object
-                description: parameters of the search
-                properties:
-                  _id:
-                    type: string
-                    description: id of the search saved
-                  url:
-                    type: string
-                    description: url associated with the request
-                  start:
-                    type: string
-                    description: start point of the travel
-                  end:
-                    type: string
-                    description: end point of the travel
-                  interest:
-                    type: array
-                    items:
-                      type: string
-                      description: interest of the search for the point of interests
-                  bike:
-                    type: boolean
-                    description: describe if in the request user wants bike sharing
-                  weather:
-                    type: boolean
-                    description: describe if in the request user wants weather forecasts
-                  limit:
-                    type: number
-                    description: maximum number of intermediate cities
-                  minDistance:
-                    type: number
-                    description: Minimum distance between two intermediate cities
-                  maxDetour:
-                    type: number
-                    description: max detour to find intermediate cities
-                  profile:
-                    type: string
-                    description: describe the type of travel
-                  route:
-                    type: string
-                    description: define the endpoint used
+            $ref: '#/components/schemas/travelHistoryElement'
         destination:
           type: array
           items:
-            type: object
-            description: Destination search result 
-            properties:
-              dateTime:
-                type: string
-                description: date of when the search was made
-              parameters:
-                type: object
-                description: parameters of the search
-                properties:
-                  _id:
-                    type: string
-                    description: id of the search saved
-                  url:
-                    type: string
-                    description: url associated with the request
-                  address:
-                    type: string
-                    description: address of the destination
-                  interest:
-                    type: array
-                    items:
-                      type: string
-                      description: interest of the search for the point of interests
-                  bike:
-                    type: boolean
-                    description: describe if in the request user wants bike sharing
-                  weather:
-                    type: boolean
-                    description: describe if in the request user wants weather forecasts
-                  route:
-                    type: string
-                    description: define the endpoint used
+            $ref: '#/components/schemas/travelHistoryElement'
+      example:
+        $ref: 'docExamples/history.json'
+      
     geocode:
       type: object
       description: Geocode result
@@ -1028,17 +1145,6 @@ components:
           description: Various etails
       example:
         $ref: 'docExamples/miniPath.json'
-    interests:
-      type: array
-      items:
-        type: string
-        description: interest of the search for the points of interests
-        enum:
-          - "sustenance"
-          - "education"
-          - "entertainment"
-          - "tourism"
-          - "accomodation"
     poiArray:
       type: array
       description: Array of POI objects
@@ -1088,13 +1194,17 @@ components:
         copyright:
           type: string
           example: The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.
-    stopsResponse:
+    routeStops:
       type: object
       properties:
         start:
-          $ref: '#/components/schemas/start'
+          allOf:
+            - $ref: '#/components/schemas/start'
+            - description: Starting stop
         end:
-          $ref: '#/components/schemas/end'
+          allOf:
+            - $ref: '#/components/schemas/end'
+            - description: Ending stop
         intermediates:
           type: array
           description: Intermediary stops
@@ -1105,6 +1215,29 @@ components:
                 $ref: '#/components/schemas/intermediate'
               pois:
                 $ref: '#/components/schemas/poiArray'
+    destinationInfoNoAddr:
+      type: object
+      properties:
+        weather:
+          $ref: '#/components/schemas/weather'
+        bike:
+          $ref: '#/components/schemas/bikes'
+        poi:
+          $ref: '#/components/schemas/poiArray'
+    endInfo:
+      allOf:
+        - type: object
+          properties:
+            address:
+              $ref: '#/components/schemas/end'
+        - $ref: '#/components/schemas/destinationInfoNoAddr'
+    intermediateInfo:
+      allOf:
+        - type: object
+          properties:
+            address:
+              $ref: '#/components/schemas/intermediate'
+        - $ref: '#/components/schemas/destinationInfoNoAddr'
 
   responses:
     NoToken:
