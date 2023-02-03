@@ -29,7 +29,7 @@ module.exports.poi = async (req, res) => {
      && ((bbox = strToBbox(bboxStr,true)) != null || (point = strToPoint(strPoint)) != null)) {
         if (bbox == null) {
             if (squareSideStr == undefined) {
-                squareSide = 50000;
+                squareSide = 20000;
             } else {
                 right = !isNaN(squareSide = parseFloat(squareSideStr));
             }
@@ -68,7 +68,7 @@ module.exports.poi = async (req, res) => {
 module.exports.nearbyCities = async (req, res) => {
 
     let strPoint = req.query.point; //referring point for the search
-    let range = req.query.range != undefined ? req.query.range : 5000; //range of search
+    let range = req.query.range != undefined && req.query.range >= 0 ? req.query.range : 5000; //range of search
 
     let point;
     if ((point = strToPoint(strPoint)) != null) {
