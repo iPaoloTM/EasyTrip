@@ -332,6 +332,8 @@ paths:
                   message:
                     type: array
                     description: array of weather forecasts of the next 16 days
+                    items:
+                      type: string
 
   '/v1/bikes/networks':
     get:
