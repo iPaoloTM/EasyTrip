@@ -128,8 +128,8 @@ module.exports.saveTrip = async (req, res) => {
                     }
                 });
             } else {
-                res.status(500).json({
-                    error: MSG.serverError
+                res.status(400).json({
+                    error: MSG.badRequest
                 });
             }
         }
