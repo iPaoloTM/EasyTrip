@@ -42,7 +42,7 @@ module.exports.forecast = async (req, res) => {
 
     data.data.forEach((item, i) => {
       array[i]=item.weather["description"];
-      forecasts+=" on day "+i+", "+array[i]+'\n'
+      forecasts+=" on day "+i+", "+array[i]+','
     });
 
     res.status(200).json({
