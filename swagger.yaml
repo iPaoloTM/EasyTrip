@@ -881,10 +881,10 @@ components:
         destination:
           type: array
           items:
-            $ref: '#/components/schemas/travelHistoryElement'
+            $ref: '#/components/schemas/destinationHistoryElement'
       example:
         $ref: 'docExamples/history.json'
-      
+  
     geocode:
       type: object
       description: Geocode result
