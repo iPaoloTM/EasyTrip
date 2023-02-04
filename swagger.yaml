@@ -336,22 +336,23 @@ paths:
                     description: description of the weather forecasts for the next 16 days in natuaral language
                   message:
                     type: array
-                    example: ["Few clouds",
-        "Clear Sky",
-        "Mix snow/rain",
-        "Flurries",
-        "Flurries",
-        "Few clouds",
-        "Broken clouds",
-        "Flurries",
-        "Few clouds",
-        "Broken clouds",
-        "Clear Sky",
-        "Clear Sky",
-        "Light snow",
-        "Heavy snow",
-        "Heavy snow",
-        "Mix snow/rain"]
+                    example: 
+                    - "Few clouds"
+                    - "Clear Sky"
+                    - "Mix snow/rain"
+                    - "Flurries"
+                    - "Flurries"
+                    - "Few clouds"
+                    - "Broken clouds"
+                    - "Flurries"
+                    - "Few clouds"
+                    - "Broken clouds"
+                    - "Clear Sky"
+                    - "Clear Sky"
+                    - "Light snow"
+                    - "Heavy snow"
+                    - "Heavy snow"
+                    - "Mix snow/rain"
                     description: array of weather forecasts of the next 16 days
                     items:
                       type: string
@@ -411,7 +412,7 @@ paths:
                 type: object
                 properties:
                   address:
-                    $ref: '#/components/schemas/geocode'
+                    $ref: '#/components/schemas/start'
                   weather:
                     $ref: '#/components/schemas/weather'
                   bike:
@@ -1025,22 +1026,23 @@ components:
           description: Current weather status of address
         forecasts:
           type: array
-          example: ["Few clouds",
-        "Clear Sky",
-        "Mix snow/rain",
-        "Flurries",
-        "Flurries",
-        "Few clouds",
-        "Broken clouds",
-        "Flurries",
-        "Few clouds",
-        "Broken clouds",
-        "Clear Sky",
-        "Clear Sky",
-        "Light snow",
-        "Heavy snow",
-        "Heavy snow",
-        "Mix snow/rain"]
+          example: 
+            - "Few clouds"
+            - "Clear Sky"
+            - "Mix snow/rain"
+            - "Flurries"
+            - "Flurries"
+            - "Few clouds"
+            - "Broken clouds"
+            - "Flurries"
+            - "Few clouds"
+            - "Broken clouds"
+            - "Clear Sky"
+            - "Clear Sky"
+            - "Light snow"
+            - "Heavy snow"
+            - "Heavy snow"
+            - "Mix snow/rain"
           description: Weather forecasts of the next 16 days
           items:
             type: string
