@@ -299,12 +299,15 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                     description: Success of request
                   text:
                     type: string
+                    example: 'current weather in Trento is Clear sky'
                     description: description of the current weather status in natural language
                   message:
                     type: string
+                    example: 'Clear sky'
                     description: current weather statusDocumenti
 
   '/v1/weather/forecast':
@@ -325,12 +328,30 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                     description: Success of request
                   text:
                     type: string
+                    example: 'In the next 16 days, in Trento the weather will be: on day 0, Few clouds, on day 1, Clear Sky, on day 2, Mix snow/rain, on day 3, Flurries, on day 4, Flurries, on day 5, Few clouds, on day 6, Broken clouds, on day 7, Flurries, on day 8, Few clouds, on day 9, Broken clouds, on day 10, Clear Sky, on day 11, Clear Sky, on day 12, Light snow, on day 13, Heavy snow, on day 14, Heavy snow, on day 15, Mix snow/rain.'
                     description: description of the weather forecasts for the next 16 days in natuaral language
                   message:
                     type: array
+                    example: ["Few clouds",
+        "Clear Sky",
+        "Mix snow/rain",
+        "Flurries",
+        "Flurries",
+        "Few clouds",
+        "Broken clouds",
+        "Flurries",
+        "Few clouds",
+        "Broken clouds",
+        "Clear Sky",
+        "Clear Sky",
+        "Light snow",
+        "Heavy snow",
+        "Heavy snow",
+        "Mix snow/rain"]
                     description: array of weather forecasts of the next 16 days
                     items:
                       type: string
@@ -955,45 +976,71 @@ components:
       properties:
         company:
           type: string
+          example: 'Comunicare S.r.l.'
           description: The company providing the bike sharing service
         gbfs_href:
           type: string
           description: Website url of the bike sharing service
         href:
           type: string
+          example: '/v2/networks/e-motion-trento'
           description: resource URI on bike sharing API Website
         id:
           type: string
+          example: 'e-motion-trento'
           description: bike sharing identifier
         location:
           type: object
           properties:
             city:
               type: string
+              example: 'Trento'
               description: City where the bike sharing service is available
             country:
               type: string
+              example: 'IT'
               description: Country where the city is located
             latitude:
               type: number
+              example: 46.06643205823519
               description: latitute coordinate value
             longitude:
               type: number
+              example: 11.122145390351879
               description: longitude coordinate value
         name:
           type: string
+          example: 'e.motion'
           description: name of the bike sharing service
         source:
           type: string
+          example: 'https://www.bicincitta.com/frmLeStazioni.aspx?ID=187'
           description: link web of the bike sharing provider
     weather:
       type: object
       properties:
         current:
           type: string
+          example: 'Clear sky'
           description: Current weather status of address
         forecasts:
           type: array
+          example: ["Few clouds",
+        "Clear Sky",
+        "Mix snow/rain",
+        "Flurries",
+        "Flurries",
+        "Few clouds",
+        "Broken clouds",
+        "Flurries",
+        "Few clouds",
+        "Broken clouds",
+        "Clear Sky",
+        "Clear Sky",
+        "Light snow",
+        "Heavy snow",
+        "Heavy snow",
+        "Mix snow/rain"]
           description: Weather forecasts of the next 16 days
           items:
             type: string
