@@ -1,0 +1,38 @@
+{
+  "name": "restbasic",
+  "version": "1.0.0",
+  "description": "Rest basics project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iPaoloTM/EasyTrip.git"
+  },
+  "author": "Group EasyTrip",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iPaoloTM/EasyTrip/issues"
+  },
+  "homepage": "https://github.com/iPaoloTM/EasyTrip#readme",
+  "dependencies": {
+    "amadeus": "^7.1.0",
+    "bcrypt": "^5.1.0",
+    "convert-json-schema-to-mongoose": "^0.3.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "geolib": "^3.3.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.9.0",
+    "node-fetch": "^3.3.0",
+    "passport": "^0.6.0",
+    "passport-google-oauth": "^2.0.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  }
+}

@@ -1,0 +1,101 @@
+{
+    "$id": "https://simone-compri-209099.com/user.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "Base structure of a user",
+    "type": "object",
+    "required": ["username","psw"],
+    "properties": {
+        "username": {
+            "type": "string",
+            "description": "Username of the user"
+        },
+        "psw": {
+            "type": "string",
+            "description": "Password of the user"
+        },
+        "email": {
+            "type": "string",
+            "description": "Email of the user"
+        },
+        "googleaccount": {
+            "type": "boolean",
+            "default": false
+        },
+        "history": {
+            "type": "array",
+            "description": "Trips research history",
+            "items": {
+                "type": "object",
+                "required": ["id","dateTime","type","parameters","url"],
+                "properties": {
+                    "dateTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Date-time of execution of the research (format: simplified extended ISO format - ISO 8601)"
+                    },
+                    "route": {
+                        "type": "string",
+                        "description": "Route reference of trip search (route + '/' + type = path to execute search)"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Type of trip search",
+                        "enum": ["destination","travel"]
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Parameters of the trip search",
+                        "additionalProperties": false,
+                        "properties": {
+                            "address": {
+                                "type": "string",
+                                "description": "Address for /destination search"
+                            },
+                            "start": {
+                                "type": "string",
+                                "description": "Starting address for /travel search"
+                            },
+                            "end": {
+                                "type": "string",
+                                "description": "Ending address for /travel search"
+                            },
+                            "weather": {
+                                "type": "boolean",
+                                "description": "Weather requested or not"
+                            },
+                            "bikes": {
+                                "type": "boolean",
+                                "description": "Bike sharing requested or not"
+                            },
+                            "interest": {
+                                "type": "array",
+                                "description": "Interests for the trip",
+                                "items": {
+                                    "type": "string",
+                                    "enum": ["sustenance","education","entertainment","tourism","accomodation"]
+                                }
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "description": "Max number of intermediate stops for /travel search"
+                            },
+                            "minDistance": {
+                                "type": "number",
+                                "description": "Minimum distance between intermediate stops for /travel search"
+                            },
+                            "maxDetour": {
+                                "type": "number",
+                                "description": "Maximum distance for a detour to an intermediate stop for /travel search"
+                            },
+                            "profile": {
+                                "type": "string",
+                                "description": "Veichle profile",
+                                "enum": ["car","bike","foot"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
