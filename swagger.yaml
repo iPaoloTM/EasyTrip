@@ -56,7 +56,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
 
   '/v1/users/auth/google':
-    post:
+    get:
       summary: Authentication of an user via google and get a token
       description: Authentication of an user based on the google account and get a token. The user is redirected to the Google Authentication Page; if the authentication ends correctly it returns the username of the user with his email
       tags:
