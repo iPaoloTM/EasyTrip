@@ -1,6 +1,6 @@
 {
   "name": "restbasic",
-  "version": "1.0.0",
+  "version": "1rest.0.0",
   "description": "Rest basics project",
   "main": "index.js",
   "scripts": {
