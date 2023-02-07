@@ -151,11 +151,11 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                     stops.intermediates = [];
                     subPathLen = Math.round(path.points.coordinates.length/(limit+1));
                     for (i = subPathLen; i < subPathLen*(limit+1); i += subPathLen) {
-                        stops.intermediates.push(path.points.coordinates[i]);
+                        stops.intermediates.push(reversePointArray(path.points.coordinates[i]));
                     }
                     if (limit > 0
-                        && geolib.getDistance(pointArrayToObj(stops.intermediates[0],true),
-                            limit > 1 ? pointArrayToObj(stops.intermediates[1],true) : pointObjCompleteNames(stops.end.point)) < minDistance) {
+                        && geolib.getDistance(pointArrayToObj(stops.intermediates[0]),
+                            limit > 1 ? pointArrayToObj(stops.intermediates[1]) : pointObjCompleteNames(stops.end.point)) < minDistance) {
                         limit--;
                     } else {
                         right = true;
@@ -169,7 +169,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                     //Find pois
                     j = 0;
                     do {
-                        stops.intermediates[i] = reversePointArray(!poiDirections[j] ? stops.intermediates[i] : path.points.coordinates[subPathLen*(i+1)+poiDirections[j]*poiTollerance]);
+                        stops.intermediates[i] = !poiDirections[j] ? stops.intermediates[i] : reversePointArray(path.points.coordinates[subPathLen*(i+1)+poiDirections[j]*poiTollerance]);
                         try {
                             pois = (await request(OSM_TOOLS_URL + "/v1/locations/poi?point=" + pointToStr(stops.intermediates[i]) + interestsStr + "&squareSide=" + maxDetour)
                                 .then(response => JSON.parse(response))

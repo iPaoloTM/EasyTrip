@@ -93,7 +93,7 @@ function pointObjCompleteNames(point) {
 }
 
 function reversePointArray(point) {
-    return point.reverse();
+    return [point[1],point[0]];
 }
 
 function reverseBbox(bbox) {
