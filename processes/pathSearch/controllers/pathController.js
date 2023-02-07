@@ -42,7 +42,7 @@ module.exports.routeGET = async (req, res) => {
 
     let params = getCommonQueryParams(req.query);
 
-    let stops = await getStops(params.start,params.end,params.interests,params.strLimit,params.minDistanceStr,params.maxDetourStr,params.profile,false);
+    let stops = await getStops(params.start,params.end,params.interests,params.strLimit,params.minDistanceStr,params.maxDetourStr,params.profile,"false");
 
     let route = await getRoute(stops,params.profile);
 
@@ -295,6 +295,7 @@ async function getRoute(stops,profile = "car") {
             right = false;
         }
     } catch (error) {
+        //console.log(error);
         right = false;
     }
 

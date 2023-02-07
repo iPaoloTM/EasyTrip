@@ -288,7 +288,6 @@ paths:
         - Point Search
       parameters:
         - $ref: '#/components/parameters/city'
-          description: City on which to get current weather status
       responses:
         '200':
           description: Return a JSON with current weather status on given city
@@ -584,7 +583,6 @@ paths:
         - EasyTrip Facade
       parameters:
         - $ref: '#/components/parameters/token'
-          description: token of the user
         
       responses:
         '200':
@@ -613,7 +611,6 @@ paths:
         - EasyTrip Facade
       parameters:
         - $ref: '#/components/parameters/token'
-          description: token of the user
         - name: id
           in: path
           required: true
@@ -664,7 +661,7 @@ components:
       name: x-access-token
       in: header
       required: true
-      description:  the jwt of the session
+      description:  user jwt of the session
       example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0b3B0YWwuY29tIiwiZXhwIjoxNDI2NDIwODAwLCJodHRwOi8vdG9wdGFsLmNvbS9qd3RfY2xhaW1zL2lzX2FkbWluIjp0cnVlLCJjb21wYW55IjoiVG9wdGFsIiwiYXdlc29tZSI6dHJ1ZX0.yRQYnWzskCZUxPwaQupWkiUzKELZ49eM7oWxAQK_ZXw'
       schema:
         type: string
@@ -1127,19 +1124,22 @@ components:
           type: number
           description: Total descent, in meters
         points:
-          $ref: '#/components/schemas/graphhopperResultPoints'
-          description: Geometry of the route
+          allOf:
+            - $ref: '#/components/schemas/graphhopperResultPoints'
+            - description: Geometry of the route
         snapped_waypoints:
-          $ref: '#/components/schemas/graphhopperResultPoints'
-          description: Snapped input points
+          allOf:
+            - $ref: '#/components/schemas/graphhopperResultPoints'
+            - description: Snapped input points
         points_encoded:
           type: boolean
           description: Whether the points and snapped_waypoints fields are polyline-encoded strings rather than JSON arrays of coordinates
           enum:
             - false
         bbox:
-          $ref: '#/components/schemas/bbox'
-          description: Bounding box of the route geometry. Format [minLon, minLat, maxLon, maxLat]
+          allOf:
+            - $ref: '#/components/schemas/bbox'
+            - description: Bounding box of the route geometry. Format [minLon, minLat, maxLon, maxLat]
         instructions:
           type: array
           description: The instructions for this route

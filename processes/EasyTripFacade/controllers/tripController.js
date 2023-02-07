@@ -133,6 +133,8 @@ module.exports.travel = async (req, res) => {
                     json: true
                 })).route.paths
             } catch (error) {
+                //console.log(error);
+                right = false;
                 res.status(400).json({
                     error: MSG.badRequest
                 });
@@ -152,13 +154,16 @@ module.exports.travel = async (req, res) => {
                     paths: pathSearchRes.route.paths
                 }
             } catch (error) {
+                //console.log(error);
+                right = false;
                 res.status(400).json({
                     error: MSG.badRequest
                 });
             }
         }
-
-        res.status(200).json(travel);
+        if (right) {
+            res.status(200).json(travel);
+        }
     } else {
         res.status(400).json({
             error: MSG.badRequest
