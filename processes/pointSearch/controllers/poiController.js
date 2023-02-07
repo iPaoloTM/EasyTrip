@@ -27,7 +27,6 @@ module.exports.getPOI = async (req, res) => {
     amadeus.referenceData.locations.cities.get({
         keyword: city
     }).then(function (response) {
-        console.log(response.data[0]);
         lat = response.data[0].geoCode["latitude"];
         long = response.data[0].geoCode["longitude"];
 

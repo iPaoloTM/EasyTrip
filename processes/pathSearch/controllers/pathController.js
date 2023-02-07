@@ -129,7 +129,7 @@ async function getStops(start,end,interests,strLimit = "3",minDistanceStr = "200
                             .then(response => JSON.parse(response))).hits[0];
                 right = stops.start != undefined && stops.end != undefined ? true : false;
             } catch (error) {
-                console.error(error);
+                //console.error(error);
                 right = false;
             }
         }

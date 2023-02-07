@@ -21,10 +21,9 @@ module.exports.getCombined = async (req, res) => {
       try {
         const response = await request('http://localhost:12346/v1/weather/forecast?city='+req.query.city);
         const responseBody = JSON.parse(response);
-        //console.log(response);
         return responseBody;
         } catch (error) {
-          console.error(error)
+          //console.error(error);
         }
       }
 
@@ -35,7 +34,7 @@ module.exports.getCombined = async (req, res) => {
         //console.log(response);
         return responseBody;
         } catch (error) {
-          console.error(error)
+          //console.error(error);
         }
       }
 
@@ -44,17 +43,15 @@ module.exports.getCombined = async (req, res) => {
         const response = await request("https://api.citybik.es/v2/networks");
         const responseBody = JSON.parse(response);
         var result=0;
-        console.log(responseBody)
         responseBody.networks.forEach((item, i) => {
 
           if (responseBody.networks[i].location.city === req.query.city) {
             result=responseBody.networks[i];
           }
         });
-        console.log(result);
         return result;
         } catch (error) {
-          console.error(error)
+          //console.error(error);
         }
       }
 

@@ -27,7 +27,7 @@ module.exports.destination = async (req, res) => {
           message: responseBody
       });
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       res.status(400).json({
           success: false,
           message: MSG.badRequest
