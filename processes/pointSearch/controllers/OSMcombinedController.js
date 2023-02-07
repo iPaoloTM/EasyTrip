@@ -24,8 +24,8 @@ module.exports.getCombined = async (req, res) => {
 
         return currWeather.message;
         } catch (error) {
-          console.error(error)
-          return []
+          //console.error(error);
+          return [];
         }
       }
 
@@ -37,8 +37,8 @@ module.exports.getCombined = async (req, res) => {
 
         return forecastWeather.message;
         } catch (error) {
-          console.error(error)
-          return []
+          //console.error(error);
+          return [];
         }
       }
 
@@ -49,8 +49,8 @@ module.exports.getCombined = async (req, res) => {
 
         return responseGeocode.hits[0];
         } catch (error) {
-          console.error(error);
-          return []
+          //console.error(error);
+          return [];
         }
       }
 
@@ -112,27 +112,37 @@ module.exports.getCombined = async (req, res) => {
       if (address != undefined) {
         geocodeResponse = await getDataFromGeoCode();
 
-        if (typeof geocodeResponse != String) {
+        if (geocodeResponse != undefined) {
           city = geocodeResponse.city ?? geocodeResponse.name;
-          if (interests != undefined) {
-            poiResponse = await getDataFromPOIEndpoint(city);
+          if (city != undefined) {
+            if (interests != undefined) {
+              poiResponse = await getDataFromPOIEndpoint(city);
+            }
+  
+            if (weatheFlag === "true") {
+              currentWeatherResponse = await getCurrentDataFromWeatherEndpoint(city);
+              forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint(city);
+            }
+  
+            if (bikeFlag === "true")
+              bikeResponse = await getDataFromBikeEndpoint(city);
+            
+            res.status(200).json({
+                address: geocodeResponse,
+                weather: currentWeatherResponse != undefined && forecastsWeatherResponse != null ? {current: currentWeatherResponse, forecasts: forecastsWeatherResponse} : undefined,
+                bike: bikeResponse,
+                poi: poiResponse
+            });
+          } else {
+            res.status(400).json({
+                error: MSG.badRequest
+            });
           }
-
-          if (weatheFlag === "true") {
-            currentWeatherResponse = await getCurrentDataFromWeatherEndpoint(city);
-            forecastsWeatherResponse = await getForecastsDataFromWeatherEndpoint(city);
-          }
-
-          if (bikeFlag === "true")
-            bikeResponse = await getDataFromBikeEndpoint(city);
+        } else {
+          res.status(400).json({
+              error: MSG.badRequest
+          });
         }
-
-        res.status(200).json({
-          address: geocodeResponse,
-          weather: currentWeatherResponse != undefined && forecastsWeatherResponse != null ? {current: currentWeatherResponse, forecasts: forecastsWeatherResponse} : undefined,
-          bike: bikeResponse,
-          poi: poiResponse
-      });
       } else {
         res.status(400).json({
             error: MSG.badRequest
