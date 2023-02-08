@@ -3,7 +3,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: /EasyTrip/Dockerfile
+      dockerfile: EasyTrip/Dockerfile
     ports: 
       - "12345-12349:12345-12349"
     volumes:
@@ -14,7 +14,7 @@ services:
   gui:
     build:
       context: .
-      dockerfile: /EasyTripGUI/Dockerfile
+      dockerfile: EasyTripGUI/Dockerfile
     ports: 
       - "4200:4200"
     volumes:
