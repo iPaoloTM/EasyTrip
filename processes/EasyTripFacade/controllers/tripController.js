@@ -143,9 +143,9 @@ module.exports.travel = async (req, res) => {
             try {
                 url += "/route?start=" + start + "&end=" + end + "&limit=0";
                 pathSearchRes = await (request(url).then(response => JSON.parse(response)));
-                url = POINT_SEARCH_URL + "/v2/combined/about?address=" + end;
-                pointSearchRes = await (request(url + "&weather=false&bikes=false").then(response => JSON.parse(response)));
-                url += "&weather=" + (toDo.weather ? "true" : "false")
+                url = POINT_SEARCH_URL + "/v2/combined/about?address=";
+                pointSearchRes = await (request(url + start + "&weather=false&bikes=false").then(response => JSON.parse(response)));
+                url += end + "&weather=" + (toDo.weather ? "true" : "false")
                 + "&bikes=" + (toDo.bikes ? "true" : "false")
                 + (toDo.poi ? arrayToStr(interests,"&interest=",true) : "");
                 travel = {
