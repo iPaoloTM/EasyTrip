@@ -1,5 +1,11 @@
 # EasyTrip
-Service Design and Engineering project
+Service Design and Engineering project - A RESTful service that can help you plan a trip
+
+## Features
+* OAuth2 authentication: you can register and log-in withyour Google account
+* PointSearch: you can search for weather, POI andbike sharing info in a certain place
+* PathSearch: you can search for the information above but along a chosen path to go from city A to city B
+
 
 ## Server
 ### Dependecies intallation
