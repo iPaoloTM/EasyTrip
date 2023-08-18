@@ -28,3 +28,7 @@ Execute the command:
 ```
 docker-compose up --build
 ```
+
+## Disclaimer
+
+The service may not work because of outdated or expired API key. If you need assistance, open an issue :)
